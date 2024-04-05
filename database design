@@ -1,0 +1,11 @@
+Game table
+{_id, }
+
+Players table
+{_id, name, age, earnings, profilePic, gamesPlayed, leaderboardRanking?}
+
+Card table
+{_id, picture, name}
+
+Room table
+{_id, players, roomCode}
