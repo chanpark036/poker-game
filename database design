@@ -1,0 +1,37 @@
+GameState table
+{
+    _id: ,
+    cardsById: 
+    currentTurnPlayerIndex: 
+    phase:
+
+}
+
+Players table
+{
+    _id 
+    name 
+    age 
+    earnings 
+    profilePic 
+    gamesPlayed 
+    leaderboardRanking?
+}
+
+Card table
+{
+    _id 
+    picture 
+    rank 
+    suit 
+    locationType (unused, table, player-hand)
+    playerIndex
+    
+}
+
+Room table
+{
+    _id
+    players 
+    roomCode
+}
