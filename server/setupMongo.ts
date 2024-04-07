@@ -1,55 +1,61 @@
 import { MongoClient } from 'mongodb'
-import { Operator, Customer, Ingredient } from './data'
+import { Card, GameState, Room, Player, RANKS, SUITS } from './model'
 
 // Connection URL
 const url = 'mongodb://127.0.0.1:27017'
 const client = new MongoClient(url)
 
-const operators: Operator[] = [
-  {
-    _id: "jim",
-    name: "Jim",
-  },
-  {
-    _id: "mary",
-    name: "Mary",
-  },
-]
-
-const customers: Customer[] = [
-  {
-    _id: "alice",
-    name: "Alice",
-  },
-  {
-    _id: "bob",
-    name: "Bob",
-  },
-]
-
-const possibleIngredients: Ingredient[] = []
-const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-const ingredients: string[] = ['apple', 'banana', 'orange', 'kiwi', 'honey', 'mango', 'strawberry', 'blueberry', 'yogurt', 'pineapple']
-for(let i=0; i < 10; i++){
-  possibleIngredients.push({_id: alphabet.charAt(i), name: ingredients[i], price: i})
+const cards: Card[] = []
+let count = 1
+for(let rank of RANKS){
+    for(let suit of SUITS){
+        cards.push(
+            {
+                "_id": count.toString(),
+                "rank": rank,
+                "suit": suit,
+                "locationType": "unused",
+                "playerIndex": null,
+                "positionInLocation": null,
+                "picture": null
+            }
+        )
+        count+=1
+    }
 }
+
+
+const players: Player[] = [
+  {
+    "_id": 1,
+    "name": "alice",
+    "age": 1,
+    "earnings": 100,
+    "profilePic": null,
+    "gamesPlayed": 0,
+    "leaderboardRanking": 0
+  },
+  {
+    "_id": 2,
+    "name": "bob",
+    "age": 2,
+    "earnings": 200,
+    "profilePic": null,
+    "gamesPlayed": 0,
+    "leaderboardRanking": 0
+  },
+]
+
 
 async function main() {
   await client.connect()
   console.log('Connected successfully to MongoDB')
 
-  const db = client.db("test")
-
-  // set up unique index for upsert -- to make sure a customer cannot have more than one draft order
-  db.collection("orders").createIndex(
-    { customerId: 1 }, 
-    { unique: true, partialFilterExpression: { state: "draft" } }
-  )
+  const db = client.db("pokerGame")
 
   // add data
-  console.log("inserting customers", await db.collection("customers").insertMany(customers as any))
-  console.log("inserting operators", await db.collection("operators").insertMany(operators as any))
-  console.log("inserting possible ingredients", await db.collection("possibleIngredients").insertMany(possibleIngredients as any))
+  console.log("inserting cards", await db.collection("cards").insertMany(cards as any))
+  console.log("inserting players", await db.collection("players").insertMany(players as any))
 
   process.exit(0)
 }
