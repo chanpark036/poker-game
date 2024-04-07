@@ -32,6 +32,5 @@ Card table
 Room table
 {
     _id
-    players 
-    roomCode
+    players
 }

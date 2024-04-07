@@ -8,12 +8,13 @@ export type CardId = string
 export type LocationType = "unused" | "last-card-played" | "player-hand"
 
 export interface Card {
-  id: CardId
+  _id: CardId
   rank: typeof RANKS[number]
   suit: typeof SUITS[number]
   locationType: LocationType
   playerIndex: number | null
   positionInLocation: number | null
+  picture: string | null
 }
 
 export interface Config {
@@ -21,6 +22,21 @@ export interface Config {
   numRanks: number
 }
 
+export interface Player {
+  _id: number
+  name: string
+  age: number
+  earnings: number
+  profilePic: string | null
+  gamesPlayed: number
+  leaderboardRanking?: number
+}
+
+
+export interface Room{
+  _id: number
+  playerids: number[] | null
+}
 /**
  * determines whether one can play a card given the last card played
  */
@@ -94,12 +110,13 @@ export function getLastPlayedCard(cardsById: Record<CardId, Card>) {
         const card: Card = {
           suit,
           rank,
-          id: String(cardId++),
+          _id: String(cardId++),
           locationType: "unused",
           playerIndex: null,
           positionInLocation: null,
+          picture: null,
         }
-        cardsById[card.id] = card
+        cardsById[card._id] = card
       }
     }
   }
@@ -259,7 +276,7 @@ export function doAction(state: GameState, action: Action): Card[] {
 }
 
 export function formatCard(card: Card | undefined, includeLocation = false) {
-  let paddedCardId = card.id
+  let paddedCardId = card._id
   while (paddedCardId.length < 3) {
     paddedCardId = " " + paddedCardId
   }
