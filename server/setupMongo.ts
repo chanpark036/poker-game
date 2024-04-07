@@ -11,7 +11,7 @@ for(let rank of RANKS){
     for(let suit of SUITS){
         cards.push(
             {
-                "_id": count.toString(),
+                "_id": String(count),
                 "rank": rank,
                 "suit": suit,
                 "locationType": "unused",

@@ -110,12 +110,13 @@ export function getLastPlayedCard(cardsById: Record<CardId, Card>) {
         const card: Card = {
           suit,
           rank,
-          id: String(cardId++),
+          _id: String(cardId++),
           locationType: "unused",
           playerIndex: null,
           positionInLocation: null,
+          picture: null,
         }
-        cardsById[card.id] = card
+        cardsById[card._id] = card
       }
     }
   }
@@ -275,7 +276,7 @@ export function doAction(state: GameState, action: Action): Card[] {
 }
 
 export function formatCard(card: Card | undefined, includeLocation = false) {
-  let paddedCardId = card.id
+  let paddedCardId = card._id
   while (paddedCardId.length < 3) {
     paddedCardId = " " + paddedCardId
   }
