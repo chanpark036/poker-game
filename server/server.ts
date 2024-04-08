@@ -1,14 +1,16 @@
 import http from "http"
 import { Server } from "socket.io"
-import { Action, createEmptyGame, doAction, filterCardsForPlayerPerspective, Card, Config } from "./model"
+import { Action, createEmptyGame, doAction, filterCardsForPlayerPerspective, Card, GameState } from "./model"
+import { setupMongo } from "./mongo"
 
+async function main() {
 const server = http.createServer()
-const io = new Server(server)
-const port = 8101
+const { socketIoAdapter: adapter, getGameState, tryToUpdateGameState } = await setupMongo()
+// const { socketIoAdapter: adapter } = await setupRedis()
+const io = new Server(server, { adapter })
+const port = parseInt(process.env.SERVER_PORT || "8101")
 
-let gameState = createEmptyGame(["player1", "player2"], 1, 13)
-
-function emitUpdatedCardsForPlayers(cards: Card[], newGame = false) {
+function emitUpdatedCardsForPlayers(gameState: GameState, cards: Card[], newGame = false) {
   gameState.playerNames.forEach((_, i) => {
     let updatedCardsFromPlayerPerspective = filterCardsForPlayerPerspective(cards, i)
     if (newGame) {
@@ -23,21 +25,19 @@ function emitUpdatedCardsForPlayers(cards: Card[], newGame = false) {
 }
 
 io.on('connection', client => {
-  function emitGameState() {
+  function emitGameState(gameState: GameState) {
     client.emit(
       "game-state", 
       gameState.currentTurnPlayerIndex,
       gameState.phase,
       gameState.playCount,
-      gameState.winningPlayers,
-      gameState.lastPlayed,
-      gameState.config
     )
   }
   
   console.log("New client")
   let playerIndex: number | null | "all" = null
-  client.on('player-index', n => {
+  client.on('player-index', async n => {
+    const gameState = await getGameState()
     playerIndex = n
     console.log("playerIndex set", n)
     client.join(String(n))
@@ -52,13 +52,18 @@ io.on('connection', client => {
         Object.values(gameState.cardsById),    
       )
     }
-    emitGameState()
+    emitGameState(gameState)
   })
 
-  client.on("action", (action: Action) => {
+  client.on("action", async (action: Action) => {
+    const gameState = await getGameState()
     if (typeof playerIndex === "number") {
       const updatedCards = doAction(gameState, { ...action, playerIndex })
-      emitUpdatedCardsForPlayers(updatedCards)
+      if (await tryToUpdateGameState(gameState)) {
+        emitUpdatedCardsForPlayers(gameState, updatedCards)
+      } else {
+        // TODO: do error handling
+      }
     } else {
       // no actions allowed from "all"
     }
@@ -71,50 +76,32 @@ io.on('connection', client => {
       gameState.currentTurnPlayerIndex,
       gameState.phase,
       gameState.playCount,
-      gameState.winningPlayers,
-      gameState.lastPlayed
     )
   })
 
-  client.on("new-game", () => {
-    const config: Config = gameState.config
-    gameState = createEmptyGame(["player1", "player2"], config.numDecks, config.numRanks)
-    const updatedCards = Object.values(gameState.cardsById)
-    emitUpdatedCardsForPlayers(updatedCards, true)
-    io.to("all").emit(
-      "all-cards", 
-      updatedCards,
-    )
-    io.emit(
-      "game-state", 
-      gameState.currentTurnPlayerIndex,
-      gameState.phase,
-      gameState.playCount,
-    )
-    emitGameState()
-  })
-
-  client.on("get-config",() => {
-    io.emit("get-config-reply",gameState.config)
-  })
-
-  client.on("update-config", (newConfig) =>{
-    let updateConfigReturn: boolean = false
-    if(typeof newConfig === "object"){
-      if(Object.keys(newConfig).length === 2 && typeof newConfig.numDecks === "number" 
-      && typeof newConfig.numRanks === "number" && newConfig.numDecks >= 0 && 
-      newConfig.numRanks >= 0 && newConfig.numRanks <= 13){
-        updateConfigReturn = true
-        gameState.config = {numDecks: newConfig.numDecks, numRanks: newConfig.numRanks}
-      }
+  client.on("new-game", async () => {
+    const gameState = await getGameState()
+    Object.assign(gameState, createEmptyGame(gameState.playerNames, 2, 2))
+    if (await tryToUpdateGameState(gameState)) {
+      const updatedCards = Object.values(gameState.cardsById)
+      emitUpdatedCardsForPlayers(gameState, updatedCards, true)
+      io.to("all").emit(
+        "all-cards", 
+        updatedCards,
+      )
+      io.emit(
+        "game-state", 
+        gameState.currentTurnPlayerIndex,
+        gameState.phase,
+        gameState.playCount,
+      )
+    } else {
+      // TODO: do error handling
     }
-    setTimeout(() => io.emit("update-config-reply", updateConfigReturn), 2000);
-    // if(updateConfigReturn){
-    //   io.emit("new-game")
-    // }
   })
-
-
 })
 server.listen(port)
 console.log(`Game server listening on port ${port}`)
+}
+
+main()
