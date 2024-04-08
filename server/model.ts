@@ -5,7 +5,7 @@ export const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q
 export const SUITS = ["♦️", "♥️", "♣️", "♠️"]
 
 export type CardId = string
-export type LocationType = "unused" | "last-card-played" | "player-hand"
+export type LocationType = "unused" | "table" | "player-hand"
 
 export interface Card {
   id: CardId
