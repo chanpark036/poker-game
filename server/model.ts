@@ -118,8 +118,8 @@ export function findNextCardToDraw(cardsById: Record<CardId, Card>): CardId | nu
 ////////////////////////////////////////////////////////////////////////////////////////////
 // player actions
 
-export interface DrawCardAction {
-  action: "draw-card"
+export interface FlopAction {
+  action: "flop"
   playerIndex: number
 }
 
@@ -129,7 +129,7 @@ export interface PlayCardAction {
   cardId: CardId
 }
 
-export type Action = DrawCardAction | PlayCardAction
+export type Action = FlopAction | PlayCardAction
 
 function moveToNextPlayer(state: GameState) {
   state.currentTurnPlayerIndex = (state.currentTurnPlayerIndex + 1) % state.playerNames.length
@@ -174,7 +174,7 @@ export function doAction(state: GameState, action: Action): Card[] {
     return []
   }
 
-  if (action.action === "draw-card") {
+  if (action.action === "flop") {
     const cardId = findNextCardToDraw(state.cardsById)
     if (cardId == null) {
       return []
@@ -185,7 +185,7 @@ export function doAction(state: GameState, action: Action): Card[] {
   }
 
   if (state.phase === "initial-card-dealing") {
-    if (action.action !== "draw-card") {
+    if (action.action !== "flop") {
       return []
     }
 
@@ -221,7 +221,7 @@ export function doAction(state: GameState, action: Action): Card[] {
     changedCards.push(card)
   }
 
-  if (state.phase === "play" && action.action !== "draw-card") {
+  if (state.phase === "play" && action.action !== "flop") {
     moveToNextPlayer(state)
   }
 
