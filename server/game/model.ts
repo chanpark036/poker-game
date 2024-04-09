@@ -49,4 +49,37 @@ export interface GameState {
   betsThisPhase: Record<PlayerId, number>
   potAmount: number
   dealer: PlayerId 
+
+  playerStacks: Record<PlayerId, number>
 }
+
+
+// export function createEmptyGame(playerNames: string[]): GameState {
+//   const cardsById: Record<CardId, Card> = {}
+//   let cardId = 0
+
+//   for (let i = 0; i < numberOfDecks; i++) {
+//     for (const suit of SUITS) {
+//       for (const rank of RANKS.slice(0, rankLimit)) {
+//         const card: Card = {
+//           suit,
+//           rank,
+//           _id: String(cardId++),
+//           locationType: "unused",
+//           playerIndex: null,
+//           positionInLocation: null,
+//         }
+//         cardsById[card.id] = card
+//       }
+//     }
+//   }
+
+//   return {
+//     playerNames,
+//     cardsById,
+//     currentTurnPlayerIndex: 0,
+//     phase: "initial-card-dealing",
+//     playCount: 0,
+//     lessThanTwo: []
+//   }
+// }
