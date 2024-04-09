@@ -1,14 +1,19 @@
 <template>
     <div class="playerCards">
-        <div class="card-space"></div>
-        <div class="card-space"></div>
+        <div class="card-space">{{  }}</div>
+        <div class="card-space">{{  }}</div>
+        
     </div>
+    <div v-if="myTurn">
+        This should show if myTurn
+    </div>
+    
+    
 </template>
 
 <style scoped>
 
 .playerCards {
-    position: relative;
     width: 300px;
     height: 150px;
     background-color: green;
@@ -27,3 +32,22 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 </style>
+
+<script setup lang="ts">
+import { computed } from 'vue';
+
+
+    interface Props {
+        myId?: number| "all",
+        currentTurnPlayerIndex?: number
+    }
+
+    // default values for props
+    const props = withDefaults(defineProps<Props>(), {
+        myId: "all",
+        currentTurnPlayerIndex: -1
+    })
+
+    const myTurn = computed(() => props.myId == props.currentTurnPlayerIndex)
+
+</script>
