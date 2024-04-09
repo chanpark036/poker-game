@@ -4,14 +4,19 @@
     <b-badge class="mr-2 mb-2" :variant="myTurn ? 'primary' : 'secondary'">turn: {{ currentTurnPlayerIndex }}</b-badge>
     <b-badge class="mr-2 mb-2">{{ phase }}</b-badge>
     <b-button class="mx-2 my-2" size="sm" @click="modalShow = true" :disabled="disableButton"> Open Config</b-button>
-    <!-- <AnimatedCard :cards="cards"></AnimatedCard> -->
+    <!-- <AnimatedCard :cards="cards"></AnimatedCard> 
     <div
       v-for="card in cards"
       :key="card.id"
     >
     <AnimatedCard :current-card=card :last-played-card=lastPlayedCard @play-card="playCard"></AnimatedCard>
-      <!-- <pre>{{ formatCard(card, true) }}</pre> -->
+       <pre>{{ formatCard(card, true) }}</pre> 
+    </div> -->
+
+    <div class="table">
+      <CardRun />
     </div>
+
     <b-button class="mx-2 my-2" size="sm" @click="drawCard" :disabled="!myTurn">Draw Card</b-button>
     <b-modal v-model="modalShow" @shown="socket.emit('get-config')" @ok="handleOk">
       <h2>Config</h2>
@@ -53,12 +58,21 @@
   </div>
 </template>
 
+<style scoped>
+.table {
+  position: fixed;
+  top: 100px; /* Adjust top position as needed */
+  left: 50%; /* Adjust left position as needed */
+  transform: translateX(-50%); /* Center horizontally */
+}
+</style>
+
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref } from 'vue'
 import { io } from "socket.io-client"
 import AnimatedCard from "../components/AnimatedCard.vue"
 import { Card, GamePhase, Action, formatCard, CardId, Config } from "../../../server/model"
-
+import CardRun from "../components/CardRun.vue"
 // props
 interface Props {
   playerIndex?: string

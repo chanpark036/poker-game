@@ -5,22 +5,43 @@ export const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q
 export const SUITS = ["♦️", "♥️", "♣️", "♠️"]
 
 export type CardId = string
-export type LocationType = "unused" | "table" | "player-hand"
+export type LocationType = "unused" | "last-card-played" | "player-hand"
 
 export interface Card {
-  id: CardId
+  _id: CardId
   rank: typeof RANKS[number]
   suit: typeof SUITS[number]
   locationType: LocationType
   playerIndex: number | null
   positionInLocation: number | null
+  picture: string | null
 }
 
+export interface Config {
+  numDecks: number,
+  numRanks: number
+}
+
+export interface Player {
+  _id: number
+  name: string
+  age: number
+  earnings: number
+  profilePic: string | null
+  gamesPlayed: number
+  leaderboardRanking?: number
+}
+
+
+export interface Room{
+  _id: number
+  playerids: number[] | null
+}
 /**
  * determines whether one can play a card given the last card played
  */
 export function areCompatible(card: Card, lastCardPlayed: Card) {
-  return card.rank === lastCardPlayed.rank || card.suit === lastCardPlayed.suit
+  return card.rank === lastCardPlayed.rank || card.suit === lastCardPlayed.suit || card.rank === "Q" || lastCardPlayed.rank === "Q"
 }
 
 export type GamePhase = "initial-card-dealing" | "play" | "game-over"
@@ -31,7 +52,11 @@ export interface GameState {
   currentTurnPlayerIndex: number
   phase: GamePhase
   playCount: number
+  winningPlayers: string[],
+  lastPlayed: Card | undefined
+  config: Config
 }
+
 
 /**
  * @returns an array of the number of the cards in each player's hand
@@ -77,6 +102,7 @@ export function getLastPlayedCard(cardsById: Record<CardId, Card>) {
  export function createEmptyGame(playerNames: string[], numberOfDecks = 5, rankLimit = Infinity): GameState {
   const cardsById: Record<CardId, Card> = {}
   let cardId = 0
+  const gameConfig: Config = {numDecks:numberOfDecks, numRanks: rankLimit}
 
   for (let i = 0; i < numberOfDecks; i++) {
     for (const suit of SUITS) {
@@ -84,12 +110,13 @@ export function getLastPlayedCard(cardsById: Record<CardId, Card>) {
         const card: Card = {
           suit,
           rank,
-          id: String(cardId++),
+          _id: String(cardId++),
           locationType: "unused",
           playerIndex: null,
           positionInLocation: null,
+          picture: null,
         }
-        cardsById[card.id] = card
+        cardsById[card._id] = card
       }
     }
   }
@@ -100,6 +127,9 @@ export function getLastPlayedCard(cardsById: Record<CardId, Card>) {
     currentTurnPlayerIndex: 0,
     phase: "initial-card-dealing",
     playCount: 0,
+    winningPlayers: [],
+    lastPlayed: undefined,
+    config: gameConfig
   }
 }
 
@@ -118,8 +148,8 @@ export function findNextCardToDraw(cardsById: Record<CardId, Card>): CardId | nu
 ////////////////////////////////////////////////////////////////////////////////////////////
 // player actions
 
-export interface FlopAction {
-  action: "flop"
+export interface DrawCardAction {
+  action: "draw-card"
   playerIndex: number
 }
 
@@ -129,7 +159,7 @@ export interface PlayCardAction {
   cardId: CardId
 }
 
-export type Action = FlopAction | PlayCardAction
+export type Action = DrawCardAction | PlayCardAction
 
 function moveToNextPlayer(state: GameState) {
   state.currentTurnPlayerIndex = (state.currentTurnPlayerIndex + 1) % state.playerNames.length
@@ -174,7 +204,7 @@ export function doAction(state: GameState, action: Action): Card[] {
     return []
   }
 
-  if (action.action === "flop") {
+  if (action.action === "draw-card") {
     const cardId = findNextCardToDraw(state.cardsById)
     if (cardId == null) {
       return []
@@ -185,7 +215,7 @@ export function doAction(state: GameState, action: Action): Card[] {
   }
 
   if (state.phase === "initial-card-dealing") {
-    if (action.action !== "flop") {
+    if (action.action !== "draw-card") {
       return []
     }
 
@@ -221,8 +251,19 @@ export function doAction(state: GameState, action: Action): Card[] {
     changedCards.push(card)
   }
 
-  if (state.phase === "play" && action.action !== "flop") {
+  if (state.phase === "play" && action.action !== "draw-card") {
     moveToNextPlayer(state)
+  }
+  
+  state.lastPlayed = getLastPlayedCard(state.cardsById)
+  if(state.phase === "play"){
+    //get players who have one card or less in hand
+    state.winningPlayers = []
+    for(const [playerIndex, cardCount] of computePlayerCardCounts(state).entries()){
+      if(cardCount <= 1){
+        state.winningPlayers.push(state.playerNames[playerIndex])
+      }
+    }
   }
 
   if (determineWinner(state) != null) {
@@ -234,8 +275,8 @@ export function doAction(state: GameState, action: Action): Card[] {
   return changedCards
 }
 
-export function formatCard(card: Card, includeLocation = false) {
-  let paddedCardId = card.id
+export function formatCard(card: Card | undefined, includeLocation = false) {
+  let paddedCardId = card._id
   while (paddedCardId.length < 3) {
     paddedCardId = " " + paddedCardId
   }
