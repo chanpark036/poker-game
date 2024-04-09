@@ -55,8 +55,8 @@ import { computed, ref } from 'vue';
 
     const myTurn = computed(() => props.myId == props.currentTurnPlayerIndex)
     const betAmount = ref()
-
-
+    const highestBet = ref()
+    // if betAmt = highestBet, show check button, else, show call and when clicked, betAmt = highestBet
 
 
 </script>
