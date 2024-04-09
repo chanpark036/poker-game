@@ -7,6 +7,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import App from './App.vue'
 import Game from './views/Game.vue'
+import Home from './views/Home.vue'
 
 const routes = [
 	{
@@ -19,15 +20,10 @@ const routes = [
 			}
 		}
 	},
-	// {
-	// 	path: "/profile/:playerId",
-	// 	component: Profile,
-	// 	props (route){
-			// return{
-			// 	playerId: router.params.playerId
-			// }
-	// 	}
-	// }
+	{
+		path: "/",
+		component: Home,
+	}
 ]
 
 const router = createRouter({
