@@ -1,4 +1,5 @@
 <template>
+  <p>Room id: {{ roomId }}</p>
   <div> 
     <b-button class="mx-2 my-2" size="sm" @click="socket.emit('new-game')">New Game</b-button>
     <!--<b-badge class="mr-2 mb-2" :variant="myTurn ? 'primary' : 'secondary'">turn: {{ currentTurnPlayerIndex }}</b-badge>-->
