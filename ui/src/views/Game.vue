@@ -1,13 +1,17 @@
 <template>
   <div> 
     <b-button class="mx-2 my-2" size="sm" @click="socket.emit('new-game')">New Game</b-button>
-    <b-badge class="mr-2 mb-2" :variant="myTurn ? 'primary' : 'secondary'">turn: {{ currentTurnPlayerIndex }}</b-badge>
+    <!--<b-badge class="mr-2 mb-2" :variant="myTurn ? 'primary' : 'secondary'">turn: {{ currentTurnPlayerIndex }}</b-badge>-->
 
     <div class="table">
       <CardRun 
         :card="cards[0]"
       />
     </div>
+    <div class="playerCards">
+      <PlayerHand />
+    </div>
+    
     
   </div>
 </template>
@@ -15,8 +19,14 @@
 <style scoped>
 .table {
   position: fixed;
-  top: 150px; /* Adjust top position as needed */
-  left: 70%; /* Adjust left position as needed */
+  top: 50px; /* Adjust top position as needed */
+  left: 50%; /* Adjust left position as needed */
+  transform: translateX(-50%); /* Center horizontally */
+}
+.playerCards{
+  position: fixed;
+  top: 250px; /* Adjust top position as needed */
+  left: 50%; /* Adjust left position as needed */
   transform: translateX(-50%); /* Center horizontally */
 }
 </style>
@@ -24,15 +34,18 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref } from 'vue'
 import { io } from "socket.io-client"
-import { Card} from "../../../server/game/model"
+import { Card } from "../../../server/game/model"
 import CardRun from "../components/CardRun.vue"
+import PlayerHand from "../components/PlayerHand.vue"
 // props
 interface Props {
+  roomId? : string
   playerIndex?: string
 }
 
 // default values for props
 const props = withDefaults(defineProps<Props>(), {
+  roomId: "0",
   playerIndex: "all",
 })
 

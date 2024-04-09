@@ -41,7 +41,6 @@ export interface GameState {
   cardsById: Record<CardId, Card>
   currentTurnPlayerIndex: number
   phase: GamePhase
-  playCount: number
   winningPlayers: PlayerId[]
   roomId: RoomId
 

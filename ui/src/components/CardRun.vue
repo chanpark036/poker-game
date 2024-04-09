@@ -6,10 +6,6 @@
         <div class="card-space"></div>
         <div class="card-space"></div>
     </div>
-    <div class="playerCards">
-        <div class="card-space"></div>
-        <div class="card-space"></div>
-    </div>
 </template>
 
 <style scoped>
@@ -44,17 +40,6 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  .playerCards {
-    position: relative;
-    width: 300px;
-    height: 150px;
-    background-color: green;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding-top: 10px;
-    left: 250px;
-  }
 
 
 </style>
