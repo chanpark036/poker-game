@@ -5,7 +5,12 @@
         
     </div>
     <div v-if="myTurn">
-        This should show if myTurn
+        <button>Check/Call</button>
+        <span>
+            <input type="number" placeholder="Enter amount to raise">
+            <button>Raise</button>
+        </span>
+        <button>Fold</button>
     </div>
     
     
@@ -34,7 +39,7 @@
 </style>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 
     interface Props {
@@ -49,5 +54,9 @@ import { computed } from 'vue';
     })
 
     const myTurn = computed(() => props.myId == props.currentTurnPlayerIndex)
+    const betAmount = ref()
+
+
+
 
 </script>
