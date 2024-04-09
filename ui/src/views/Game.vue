@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref } from 'vue'
 import { io } from "socket.io-client"
-import { Card} from "../../../server/gameLogic/model"
+import { Card} from "../../../server/game/model"
 import CardRun from "../components/CardRun.vue"
 // props
 interface Props {

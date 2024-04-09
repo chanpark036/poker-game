@@ -60,7 +60,7 @@
 </style>
 
 <script setup lang="ts">
-    import { Card} from "../../../server/gameLogic/model"
+    import { Card} from "../../../server/game/model"
 
     interface Props {
         card?: Card,

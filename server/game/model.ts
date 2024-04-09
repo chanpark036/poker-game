@@ -34,7 +34,7 @@ export interface Room{
   playerIds: PlayerId[]
 }
 
-export type GamePhase = "initial-card-dealing" | "play" | "game-over"
+export type GamePhase = "preflop" | "flop" | "turn" | "river" | "game-over"
 
 export interface GameState {
   playerIds: PlayerId[]
@@ -44,4 +44,10 @@ export interface GameState {
   playCount: number
   winningPlayers: PlayerId[]
   roomId: RoomId
+
+  // I added these -Will
+  playersStillIn: PlayerId[]
+  betsThisPhase: Record<PlayerId, number>
+  potAmount: number
+  dealer: PlayerId 
 }
