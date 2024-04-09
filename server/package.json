@@ -22,7 +22,7 @@
     "@types/node": "18"
   },
   "scripts": {
-    "start": "ts-node-dev --respawn server.ts",
+    "start": "ts-node-dev --respawn game/server.ts",
     "setup": "ts-node site/setupMongo.ts"
   }
 }
