@@ -1,9 +1,12 @@
 GameState table
 {
-    _id: ,
-    cardsById: 
-    currentTurnPlayerIndex: 
-    phase:
+    playerIds
+    roomId
+    cardsById
+    currentTurnPlayerIndex
+    phase
+    playCount
+    winningPlayers
 
 }
 
@@ -15,7 +18,7 @@ Players table
     earnings 
     profilePic 
     gamesPlayed 
-    leaderboardRanking?
+    leaderboardRanking
 }
 
 Card table

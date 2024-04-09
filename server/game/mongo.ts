@@ -1,6 +1,6 @@
 import { MongoClient, ObjectId } from "mongodb"
 import { createAdapter } from "@socket.io/mongo-adapter"
-import { GameState, createEmptyGame } from "./model"
+import { GameState} from "./model"
 
 export const DB = "game"
 export const GAMES_COLLECTION = "games"
@@ -14,7 +14,7 @@ export interface MongoGameState extends GameState {
 	version: number
 }
 
-export async function setupMongo() {
+export async function setupMongo(newGameState: GameState) {
 	const mongoClient = new MongoClient(process.env.MONGO_URL || URL)
 	// const mongoClient = new MongoClient(process.env.MONGO_URL || "mongodb://localhost")
 	await mongoClient.connect()
@@ -32,7 +32,7 @@ export async function setupMongo() {
 	const socketIoEventsCollection = db.collection(SOCKET_IO_EVENTS_COLLECTION)
 	const gamesCollection = db.collection(GAMES_COLLECTION)
 	try {
-		await gamesCollection.insertOne({ _id: GAME_STATE_ID, version: 0, ...createEmptyGame(["player1", "player2"], 2, 2) })
+		await gamesCollection.insertOne({ _id: GAME_STATE_ID, version: 0, ...newGameState })
 	} catch (e) {
 		// ignore
 	}

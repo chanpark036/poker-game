@@ -1,6 +1,8 @@
 import { MongoClient } from 'mongodb'
-import { Card, GameState, Room, Player, RANKS, SUITS } from './model'
-import { GAMES_COLLECTION,DB, URL } from './mongo'
+import { Card, Player, RANKS, SUITS } from '../game/model'
+
+const DB = "game"
+const URL = "mongodb://127.0.0.1:27017"
 
 // Connection URL
 const client = new MongoClient(URL)

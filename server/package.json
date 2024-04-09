@@ -23,6 +23,6 @@
   },
   "scripts": {
     "start": "ts-node-dev --respawn server.ts",
-    "setup": "ts-node setupMongo.ts"
+    "setup": "ts-node site/setupMongo.ts"
   }
 }
