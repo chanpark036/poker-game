@@ -100,7 +100,7 @@ io.on('connection', client => {
     }
   })
 })
-
+server.listen(port)
 console.log(`Game server listening on port ${port}`)
 }
 
