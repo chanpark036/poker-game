@@ -5,6 +5,8 @@ export const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q
 export const SUITS = ["♦️", "♥️", "♣️", "♠️"]
 
 export type CardId = string
+export type PlayerId = string
+export type RoomId = string
 export type LocationType = "unused" | "last-card-played" | "player-hand"
 
 export interface Card {
@@ -18,12 +20,12 @@ export interface Card {
 }
 
 export interface Config {
-  numDecks: number,
+  numDecks: number
   numRanks: number
 }
 
 export interface Player {
-  _id: number
+  _id: PlayerId
   name: string
   age: number
   earnings: number
@@ -34,8 +36,8 @@ export interface Player {
 
 
 export interface Room{
-  _id: number
-  playerids: number[] | null
+  _id: RoomId
+  playerIds: PlayerId[] | null
 }
 /**
  * determines whether one can play a card given the last card played
@@ -47,22 +49,23 @@ export function areCompatible(card: Card, lastCardPlayed: Card) {
 export type GamePhase = "initial-card-dealing" | "play" | "game-over"
 
 export interface GameState {
-  playerNames: string[]
+  playerIds: PlayerId[]
   cardsById: Record<CardId, Card>
   currentTurnPlayerIndex: number
   phase: GamePhase
   playCount: number
-  winningPlayers: string[],
+  winningPlayers: string[]
   lastPlayed: Card | undefined
   config: Config
+  roomId: RoomId
 }
 
 
 /**
  * @returns an array of the number of the cards in each player's hand
  */
-export function computePlayerCardCounts({ playerNames, cardsById }: GameState) {
-  const counts = playerNames.map(_ => 0)
+export function computePlayerCardCounts({ playerIds, cardsById }: GameState) {
+  const counts = playerIds.map(_ => 0)
   Object.values(cardsById).forEach(({ playerIndex }) => {
     if (playerIndex != null) {
       ++counts[playerIndex]
@@ -99,7 +102,7 @@ export function getLastPlayedCard(cardsById: Record<CardId, Card>) {
 /**
  * creates an empty GameState in the initial-card-dealing state
  */
- export function createEmptyGame(playerNames: string[], numberOfDecks = 5, rankLimit = Infinity): GameState {
+ export function createEmptyGame(playerIds: string[], numberOfDecks = 5, rankLimit = Infinity): GameState {
   const cardsById: Record<CardId, Card> = {}
   let cardId = 0
   const gameConfig: Config = {numDecks:numberOfDecks, numRanks: rankLimit}
@@ -122,14 +125,15 @@ export function getLastPlayedCard(cardsById: Record<CardId, Card>) {
   }
 
   return {
-    playerNames,
+    playerIds,
     cardsById,
     currentTurnPlayerIndex: 0,
     phase: "initial-card-dealing",
     playCount: 0,
     winningPlayers: [],
     lastPlayed: undefined,
-    config: gameConfig
+    config: gameConfig,
+    roomId: "A"
   }
 }
 
@@ -162,7 +166,7 @@ export interface PlayCardAction {
 export type Action = DrawCardAction | PlayCardAction
 
 function moveToNextPlayer(state: GameState) {
-  state.currentTurnPlayerIndex = (state.currentTurnPlayerIndex + 1) % state.playerNames.length
+  state.currentTurnPlayerIndex = (state.currentTurnPlayerIndex + 1) % state.playerIds.length
 }
 
 function moveCardToPlayer({ currentTurnPlayerIndex, cardsById }: GameState, card: Card) {
@@ -261,7 +265,7 @@ export function doAction(state: GameState, action: Action): Card[] {
     state.winningPlayers = []
     for(const [playerIndex, cardCount] of computePlayerCardCounts(state).entries()){
       if(cardCount <= 1){
-        state.winningPlayers.push(state.playerNames[playerIndex])
+        state.winningPlayers.push(state.playerIds[playerIndex])
       }
     }
   }
@@ -287,10 +291,10 @@ export function formatCard(card: Card | undefined, includeLocation = false) {
     )
 }
 
-export function printState({ playerNames, cardsById, currentTurnPlayerIndex, phase, playCount }: GameState) {
+export function printState({ playerIds, cardsById, currentTurnPlayerIndex, phase, playCount }: GameState) {
   const lastPlayedCard = getLastPlayedCard(cardsById)
   console.log(`#${playCount} ${phase} ${lastPlayedCard ? formatCard(lastPlayedCard) : ""}`)
-  playerNames.forEach((name, playerIndex) => {
+  playerIds.forEach((name, playerIndex) => {
     const cards = extractPlayerCards(cardsById, playerIndex)
     console.log(`${name}: ${cards.map(card => formatCard(card)).join(' ')} ${playerIndex === currentTurnPlayerIndex ? ' *TURN*' : ''}`)
   })
