@@ -1,9 +1,11 @@
 import { MongoClient } from 'mongodb'
-import { Card, GameState, Room, Player, RANKS, SUITS } from './model'
+import { Card, Player, RANKS, SUITS } from '../game/model'
+
+const DB = "game"
+const URL = "mongodb://127.0.0.1:27017"
 
 // Connection URL
-const url = 'mongodb://127.0.0.1:27017'
-const client = new MongoClient(url)
+const client = new MongoClient(URL)
 
 const cards: Card[] = []
 let count = 1
@@ -27,7 +29,7 @@ for(let rank of RANKS){
 
 const players: Player[] = [
   {
-    "_id": 1,
+    "_id": "1",
     "name": "alice",
     "age": 1,
     "earnings": 100,
@@ -36,7 +38,7 @@ const players: Player[] = [
     "leaderboardRanking": 0
   },
   {
-    "_id": 2,
+    "_id": "2",
     "name": "bob",
     "age": 2,
     "earnings": 200,
@@ -51,7 +53,7 @@ async function main() {
   await client.connect()
   console.log('Connected successfully to MongoDB')
 
-  const db = client.db("pokerGame")
+  const db = client.db(DB)
 
   // add data
   console.log("inserting cards", await db.collection("cards").insertMany(cards as any))

@@ -60,7 +60,7 @@
 </style>
 
 <script setup lang="ts">
-    import { Card, GamePhase, Action, formatCard, CardId, areCompatible, getLastPlayedCard } from "../../../server/model"
+    import { Card} from "../../../server/gameLogic/model"
 
     interface Props {
         card?: Card,

@@ -10,14 +10,24 @@ import Game from './views/Game.vue'
 
 const routes = [
 	{
-		path: "/:playerIndex",
+		path: "/game/:roomId/:playerIndex",
 		component: Game,
 		props (route) {
 			return {
+				roomId: route.params.roomId,
 				playerIndex: route.params.playerIndex
 			}
 		}
-	}
+	},
+	// {
+	// 	path: "/profile/:playerId",
+	// 	component: Profile,
+	// 	props (route){
+			// return{
+			// 	playerId: router.params.playerId
+			// }
+	// 	}
+	// }
 ]
 
 const router = createRouter({
