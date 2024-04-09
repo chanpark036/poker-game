@@ -14,8 +14,11 @@
     </div> -->
 
     <div class="table">
-      <CardRun />
+      <CardRun 
+        :card="cards[0]"
+      />
     </div>
+    
 
     <b-button class="mx-2 my-2" size="sm" @click="drawCard" :disabled="!myTurn">Draw Card</b-button>
     <b-modal v-model="modalShow" @shown="socket.emit('get-config')" @ok="handleOk">
@@ -61,8 +64,8 @@
 <style scoped>
 .table {
   position: fixed;
-  top: 100px; /* Adjust top position as needed */
-  left: 50%; /* Adjust left position as needed */
+  top: 150px; /* Adjust top position as needed */
+  left: 70%; /* Adjust left position as needed */
   transform: translateX(-50%); /* Center horizontally */
 }
 </style>
