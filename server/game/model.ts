@@ -44,7 +44,7 @@ export interface GameState {
   potAmount: number
   smallBlindIndex: number
   communityCards: CardId[]
-  unusedCards: CardId[]
+  deckCards: CardId[]
   playerStacks: Record<PlayerId, number>
 }
 
@@ -67,7 +67,7 @@ export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId, cardIds: 
     potAmount: 0,
     smallBlindIndex: 0,
     communityCards: [],
-    unusedCards: cardIds,
+    deckCards: cardIds,
     playerStacks: playerStacks
   }
 }

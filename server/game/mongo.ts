@@ -62,7 +62,10 @@ export async function tryToUpdateGameState(newGameState: GameState){
 	const gamesCollection = db.collection(GAMES_COLLECTION)
 	const result = await gamesCollection.replaceOne(
 		{ _id: newGameState.roomId},
-		{ ...newGameState},
+		{ _id: newGameState.roomId, ...newGameState},
+		{
+			upsert: true
+		}
 	)
 	if (result.modifiedCount > 0) {
 		return true
