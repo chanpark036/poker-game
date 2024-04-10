@@ -35,10 +35,11 @@ io.on("connection", function(socket){
         console.log("socket id is " + socket.id)
     })
 
-    socket.on("join-room", (roomId: RoomId)=>{
+    socket.on("join-room", (roomId: RoomId, playerId: PlayerId)=>{
         socket.join(roomId);
-        console.log("room " + roomId + "joined by player")
+        console.log("room " + roomId + " joined by player " + playerId)
         console.log("socket id is " + socket.id)
+        io.emit("player-joined", roomId, playerId)
     })
 
     socket.on("start-game", async (roomId: RoomId, playerIds: PlayerId[]) => {
@@ -48,7 +49,7 @@ io.on("connection", function(socket){
         const gameState: GameState = createEmptyGame(playerIds, roomId, cardIds)
         await tryToUpdateGameState(gameState)
     })
-
+    
 
   })
 

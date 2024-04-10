@@ -43,8 +43,8 @@ import { computed, ref } from 'vue';
 
 
     interface Props {
-        myId?: number| "all",
-        currentTurnPlayerIndex?: number
+        myId?: string,
+        currentTurnPlayerId?: number
     }
 
     // default values for props

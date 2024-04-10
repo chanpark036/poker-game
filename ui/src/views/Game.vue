@@ -1,7 +1,7 @@
 <template>
   <p>Room id: {{ roomId }}</p>
   <div> 
-    <b-button class="mx-2 my-2" size="sm" @click="socket.emit('new-game')">New Game</b-button>
+    <b-button class="mx-2 my-2" size="sm" @click="socket.emit('join-game')">New Game</b-button>
     <!--<b-badge class="mr-2 mb-2" :variant="myTurn ? 'primary' : 'secondary'">turn: {{ currentTurnPlayerIndex }}</b-badge>-->
 
     <div class="table">
@@ -11,8 +11,8 @@
     </div>
     <div class="playerCards">
       <PlayerHand 
-        :myId="playerIndex"
-        :currentTurnPlayerIndex="currentTurnPlayerIndex"
+        :myId="playerId"
+        :currentTurnPlayerId="currentTurnPlayerId"
       />
     </div>
     
@@ -45,25 +45,22 @@ import PlayerHand from "../components/PlayerHand.vue"
 // props
 interface Props {
   roomId? : string
-  playerIndex?: string
+  playerId?: string
 }
 
 // default values for props
 const props = withDefaults(defineProps<Props>(), {
   roomId: "0",
-  playerIndex: "all",
+  playerId: "all",
 })
 
 const socket = io()
-let x = props.playerIndex
-let playerIndex: number | "all" = parseInt(x) >= 0 ? parseInt(x) : "all"
-console.log("playerIndex", JSON.stringify(playerIndex))
-socket.emit("player-index", playerIndex)
 
 // All of our state
 const cards: Ref<Card[]> = ref([])
 const currentTurnPlayerIndex = ref()
 
 currentTurnPlayerIndex.value = 1
+// const currentTurnPlayerId = playerIds[currentTurnPlayerIndex.value] 
 
 </script>
