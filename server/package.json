@@ -33,6 +33,7 @@
   },
   "scripts": {
     "start": "ts-node-dev --respawn game/server.ts",
+    "serve": "HOST=localhost ts-node-dev --respawn site/server.ts",
     "setup": "ts-node site/setupMongo.ts"
   }
 }

@@ -28,7 +28,7 @@ export default defineConfig({
         ws: true,
 			},
       "^/api": {
-				target: "http://127.0.0.1:8101"
+				target: "http://127.0.0.1:8102"
 			},
     }
 	},

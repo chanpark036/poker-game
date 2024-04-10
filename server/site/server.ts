@@ -13,7 +13,8 @@ import { gitlab } from '../secrets'
 
 const HOST = process.env.HOST || "127.0.0.1"
 const GROUP_ID = ""
-const DISABLE_SECURITY = !!process.env.DISABLE_SECURITY
+// const DISABLE_SECURITY = !!process.env.DISABLE_SECURITY
+const DISABLE_SECURITY = false
 
 // set up Mongo
 const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017'
@@ -22,7 +23,7 @@ let db: Db
 
 // set up Express
 const app = express()
-const port = parseInt(process.env.PORT) || 8101
+const port = parseInt(process.env.PORT) || 8102
 
 // set up body parsing for both JSON and URL encoded
 app.use(bodyParser.json())
@@ -34,7 +35,7 @@ app.use(expressPinoLogger({ logger }))
 
 // set up CORS
 app.use(cors({
-  origin: "http://127.0.0.1:8100",
+  origin: "http://localhost:8100",
   credentials: true,
 }))
 
@@ -120,8 +121,8 @@ app.get("/api/user", (req, res) => {
 
 client.connect().then(async () => {
     logger.info('connected successfully to MongoDB')
-    db = client.db("test")
-  
+    db = client.db("game")
+    
     if (DISABLE_SECURITY) {
       passport.use("oidc", new CustomStrategy((req, done) => done(null, { preferred_username: req.query.user, roles: req.query.role })))
     } else {
@@ -141,7 +142,7 @@ client.connect().then(async () => {
       async function verify(tokenSet: any, userInfo: any, done: any) {
         logger.info("oidc " + JSON.stringify(userInfo))
         // console.log('userInfo', userInfo)
-        userInfo.roles = userInfo.groups.includes(GROUP_ID) ? ["user"] : ["admin"]
+        userInfo.roles = userInfo.groups.includes(GROUP_ID) ? ["admin"] : ["player"]
         return done(null, userInfo)
       }
   
@@ -149,7 +150,7 @@ client.connect().then(async () => {
     }
   
     app.listen(port, () => {
-      console.log(`Smoothie server listening on port ${port}`)
+      console.log(`Poker server listening on port ${port}`)
     })
   })
   
