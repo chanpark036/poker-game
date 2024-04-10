@@ -13,9 +13,6 @@ export interface Card {
   _id: CardId
   rank: typeof RANKS[number]
   suit: typeof SUITS[number]
-  locationType: LocationType
-  playerIndex: number | null
-  positionInLocation: number | null
   picture: string | null
 }
 
@@ -38,15 +35,37 @@ export type GamePhase = "preflop" | "flop" | "turn" | "river" | "game-over"
 
 export interface GameState {
   playerIds: PlayerId[]
+  cardsByPlayer: Record<PlayerId,CardId[]>,
   cardsById: Record<CardId, Card>
   currentTurnPlayerIndex: number
   phase: GamePhase
-  winningPlayers: PlayerId[]
   roomId: RoomId
 
-  // I added these -Will
   playersStillIn: PlayerId[]
   betsThisPhase: Record<PlayerId, number>
   potAmount: number
-  dealer: PlayerId 
+  smallBlindIndex: number
+  communityCards: CardId[]
+
+  playerStacks: Record<PlayerId, number>
+}
+
+export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId): GameState {
+
+  return{
+    playerIds: playerIds,
+
+    cardsById: cardsById,
+    currentTurnPlayerIndex: 0,
+    phase: "preflop",
+    roomId: roomId,
+    playersStillIn: playerIds,
+    betsThisPhase: {},
+    potAmount: 0,
+    smallBlindIndex: 0,
+  }
+
+  
+
+
 }
