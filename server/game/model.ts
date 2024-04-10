@@ -13,9 +13,6 @@ export interface Card {
   _id: CardId
   rank: typeof RANKS[number]
   suit: typeof SUITS[number]
-  locationType: LocationType
-  playerIndex: number | null
-  positionInLocation: number | null
   picture: string | null
 }
 
@@ -38,48 +35,65 @@ export type GamePhase = "preflop" | "flop" | "turn" | "river" | "game-over"
 
 export interface GameState {
   playerIds: PlayerId[]
-  cardsById: Record<CardId, Card>
+  cardsByPlayer: Record<PlayerId,CardId[]>,
   currentTurnPlayerIndex: number
   phase: GamePhase
-  winningPlayers: PlayerId[]
   roomId: RoomId
-
-  // I added these -Will
   playersStillIn: PlayerId[]
   betsThisPhase: Record<PlayerId, number>
   potAmount: number
-  dealer: PlayerId 
-
+  smallBlindIndex: number
+  communityCards: CardId[]
+  deckCards: CardId[]
   playerStacks: Record<PlayerId, number>
 }
 
+export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId, cardIds: CardId[]): GameState {
+  const playerStacks = {}
+  for(const playerId of playerIds){
+    fillPlayerStack(playerId,playerStacks)
+  }
 
-// export function createEmptyGame(playerNames: string[]): GameState {
-//   const cardsById: Record<CardId, Card> = {}
-//   let cardId = 0
+  const cardsByPlayer = dealCards(playerIds, cardIds)
 
-//   for (let i = 0; i < numberOfDecks; i++) {
-//     for (const suit of SUITS) {
-//       for (const rank of RANKS.slice(0, rankLimit)) {
-//         const card: Card = {
-//           suit,
-//           rank,
-//           _id: String(cardId++),
-//           locationType: "unused",
-//           playerIndex: null,
-//           positionInLocation: null,
-//         }
-//         cardsById[card.id] = card
-//       }
-//     }
-//   }
+  return{
+    playerIds: playerIds,
+    cardsByPlayer: cardsByPlayer,
+    currentTurnPlayerIndex: 0,
+    phase: "preflop",
+    roomId: roomId,
+    playersStillIn: playerIds,
+    betsThisPhase: {},
+    potAmount: 0,
+    smallBlindIndex: 0,
+    communityCards: [],
+    deckCards: cardIds,
+    playerStacks: playerStacks
+  }
+}
 
-//   return {
-//     playerNames,
-//     cardsById,
-//     currentTurnPlayerIndex: 0,
-//     phase: "initial-card-dealing",
-//     playCount: 0,
-//     lessThanTwo: []
-//   }
-// }
+function dealCards(playerIds: PlayerId[], cards: CardId[]){
+  const cardsByPlayer: Record<PlayerId,CardId[]> = {}
+  //shuffle cards
+  for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [cards[i], cards[j]] = [cards[j], cards[i]];
+  }
+
+  playerIds.forEach((player: PlayerId) => {
+    cardsByPlayer[player] = []
+    cardsByPlayer[player].push(cards.pop());
+    cardsByPlayer[player].push(cards.pop());
+  });
+  return cardsByPlayer
+}
+
+function fillPlayerStack(playerId: PlayerId, currentPlayerStacks: Record<PlayerId, number>, amount: number = 500){
+  //api call dealing with subtracting amount from player profile
+  if(playerId in currentPlayerStacks){
+    currentPlayerStacks[playerId] += amount
+  }
+  else{
+    currentPlayerStacks[playerId] = amount
+  }
+}

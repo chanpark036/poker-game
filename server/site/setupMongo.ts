@@ -16,9 +16,6 @@ for(let rank of RANKS){
                 "_id": String(count),
                 "rank": rank,
                 "suit": suit,
-                "locationType": "unused",
-                "playerIndex": null,
-                "positionInLocation": null,
                 "picture": null
             }
         )
