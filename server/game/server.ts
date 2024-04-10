@@ -16,6 +16,17 @@ const io = new Server(server, { adapter })
 // io.adapter(adapter);
 const port = parseInt(process.env.SERVER_PORT || "8101")
 
+// io.on('connection', client => {
+//     function emitGameState() {
+//       client.emit(
+//         "game-state", 
+//         gameState.currentTurnPlayerIndex,
+//         gameState.phase,
+//         gameState.playCount,
+//       )
+//     }
+    
+//     console.log("New client")
 
 io.on("connection", function(socket){
     socket.on("create-room", (roomId: RoomId)=>{
