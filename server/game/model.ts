@@ -36,26 +36,29 @@ export type GamePhase = "preflop" | "flop" | "turn" | "river" | "game-over"
 export interface GameState {
   playerIds: PlayerId[]
   cardsByPlayer: Record<PlayerId,CardId[]>,
-  cardsById: Record<CardId, Card>
   currentTurnPlayerIndex: number
   phase: GamePhase
   roomId: RoomId
-
   playersStillIn: PlayerId[]
   betsThisPhase: Record<PlayerId, number>
   potAmount: number
   smallBlindIndex: number
   communityCards: CardId[]
-
+  unusedCards: CardId[]
   playerStacks: Record<PlayerId, number>
 }
 
-export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId): GameState {
+export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId, cardIds: CardId[]): GameState {
+  const playerStacks = {}
+  for(const playerId of playerIds){
+    fillPlayerStack(playerId,playerStacks)
+  }
+
+  const cardsByPlayer = dealCards(playerIds, cardIds)
 
   return{
     playerIds: playerIds,
-
-    cardsById: cardsById,
+    cardsByPlayer: cardsByPlayer,
     currentTurnPlayerIndex: 0,
     phase: "preflop",
     roomId: roomId,
@@ -63,9 +66,34 @@ export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId): GameStat
     betsThisPhase: {},
     potAmount: 0,
     smallBlindIndex: 0,
+    communityCards: [],
+    unusedCards: cardIds,
+    playerStacks: playerStacks
+  }
+}
+
+function dealCards(playerIds: PlayerId[], cards: CardId[]){
+  const cardsByPlayer: Record<PlayerId,CardId[]> = {}
+  //shuffle cards
+  for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [cards[i], cards[j]] = [cards[j], cards[i]];
   }
 
-  
+  playerIds.forEach((player: PlayerId) => {
+    cardsByPlayer[player] = []
+    cardsByPlayer[player].push(cards.pop());
+    cardsByPlayer[player].push(cards.pop());
+  });
+  return cardsByPlayer
+}
 
-
+function fillPlayerStack(playerId: PlayerId, currentPlayerStacks: Record<PlayerId, number>, amount: number = 500){
+  //api call dealing with subtracting amount from player profile
+  if(playerId in currentPlayerStacks){
+    currentPlayerStacks[playerId] += amount
+  }
+  else{
+    currentPlayerStacks[playerId] = amount
+  }
 }

@@ -1,6 +1,6 @@
 import { MongoClient, ObjectId } from "mongodb"
 import { createAdapter } from "@socket.io/mongo-adapter"
-import { GameState, RoomId} from "./model"
+import { GameState, RoomId, Card} from "./model"
 
 export const DB = "game"
 export const GAMES_COLLECTION = "games"
@@ -69,4 +69,20 @@ export async function tryToUpdateGameState(newGameState: GameState){
 	} else {
 		return false
 	}
+}
+
+export async function getCards(){
+	const cardCollection = db.collection("cards")
+	const cardArray = await cardCollection.find().toArray()
+	return cardArray.map((card) => toCard(card))
+}
+
+function toCard(card: any): Card{
+	const x: Card = {
+		_id:card._id,
+		rank:card.rank,
+		suit:card.suit,
+		picture: card.picture
+	}
+	return x
 }
