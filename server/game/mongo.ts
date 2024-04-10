@@ -10,8 +10,6 @@ const SOCKET_IO_EVENTS_COLLECTION = "socket.io-adapter-events"
 // const GAME_STATE_ID = new ObjectId("000000000000000000000000")
 
 const mongoClient = new MongoClient(process.env.MONGO_URL || URL)
-await mongoClient.connect()
-const db = mongoClient.db(DB)
 
 export interface MongoGameState extends GameState {
 	_id: ObjectId
@@ -19,6 +17,8 @@ export interface MongoGameState extends GameState {
 }
 
 export async function setupMongo() {
+	await mongoClient.connect()
+	const db = mongoClient.db(DB)
 	// const mongoClient = new MongoClient(process.env.MONGO_URL || "mongodb://localhost")
 	
 	try {
@@ -44,25 +44,31 @@ export async function setupMongo() {
 
 
 export async function enterNewGameState(gameState: GameState){
+	await mongoClient.connect()
+	const db = mongoClient.db(DB)
 	const gamesCollection = db.collection(GAMES_COLLECTION)
 	try {
-		await gamesCollection.insertOne({ _id: gameState.roomId, ...gameState })
+		await gamesCollection.insertOne({ _id: new ObjectId(gameState.roomId), ...gameState })
 	} catch (e) {
 		// ignore
 	}
 }
 
 export async function getGameState(gameStateId: RoomId) {
+	await mongoClient.connect()
+	const db = mongoClient.db(DB)
 	const gamesCollection = db.collection(GAMES_COLLECTION)
-	return await gamesCollection.findOne({ _id: gameStateId }) as unknown as MongoGameState
+	return await gamesCollection.findOne({ _id: new ObjectId(gameStateId) }) as unknown as MongoGameState
 }
 
 
 export async function tryToUpdateGameState(newGameState: GameState){
+	await mongoClient.connect()
+	const db = mongoClient.db(DB)
 	const gamesCollection = db.collection(GAMES_COLLECTION)
 	const result = await gamesCollection.replaceOne(
-		{ _id: newGameState.roomId},
-		{ _id: newGameState.roomId, ...newGameState},
+		{ _id: new ObjectId(newGameState.roomId)},
+		{ _id: new ObjectId(newGameState.roomId), ...newGameState},
 		{
 			upsert: true
 		}
@@ -75,6 +81,8 @@ export async function tryToUpdateGameState(newGameState: GameState){
 }
 
 export async function getCards(){
+	await mongoClient.connect()
+	const db = mongoClient.db(DB)
 	const cardCollection = db.collection("cards")
 	const cardArray = await cardCollection.find().toArray()
 	return cardArray.map((card) => toCard(card))
