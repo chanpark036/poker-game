@@ -15,7 +15,7 @@ spec:
         app: server
     spec:
       containers:
-      - image: lecture19-smoothie-stand-server
+      - image: poker
         name: server
         imagePullPolicy: Never
         ports:
