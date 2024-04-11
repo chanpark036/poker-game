@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from 'express'
 import bodyParser from 'body-parser'
 import pino from 'pino'
 import expressPinoLogger from 'express-pino-logger'
-import { Collection, Db, MongoClient, ObjectId } from 'mongodb'
+import { Collection, Db, MongoClient, ObjectId, WithoutId } from 'mongodb'
 import session from 'express-session'
 import MongoStore from 'connect-mongo'
 import { Issuer, Strategy, generators } from 'openid-client'
@@ -11,6 +11,7 @@ import { Strategy as CustomStrategy } from "passport-custom"
 import cors from 'cors'
 import { gitlab } from '../secrets'
 import {Player} from '../game/model'
+import { PlayerProfileInfo } from './data'
 
 const HOST = process.env.HOST || "127.0.0.1"
 const GROUP_ID = ""
@@ -138,13 +139,15 @@ app.get("/api/profileInfo", checkAuthenticated, checkRole(["player"]),async (req
 })
 
 app.post("/api/profileInfo/save", checkAuthenticated, async (req, res) => {
-    const playerInfo: Player = req.body
+    const playerInfo: PlayerProfileInfo = req.body
     const result = await players.updateOne(
       {
         _id: req.user.preferred_username,
       },
       {
-        _id: req.user.preferred_username, ...playerInfo
+        $set: {
+            ...playerInfo
+          }
       },
       {
         upsert: true
