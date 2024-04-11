@@ -10,6 +10,7 @@ import passport from 'passport'
 import { Strategy as CustomStrategy } from "passport-custom"
 import cors from 'cors'
 import { gitlab } from '../secrets'
+import {Player} from '../game/model'
 
 const HOST = process.env.HOST || "127.0.0.1"
 const GROUP_ID = ""
@@ -20,6 +21,7 @@ const DISABLE_SECURITY = false
 const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017'
 const client = new MongoClient(mongoUrl)
 let db: Db
+let players: Collection<Player>
 
 // set up Express
 const app = express()
@@ -119,9 +121,28 @@ app.get("/api/user", (req, res) => {
     res.json(req.user || {})
   })
 
+app.get("/api/profileInfo", checkAuthenticated, checkRole(["player"]),async (req,res) => {
+    try{
+        const _id = req.user.preferred_username
+        const player: Partial<Player> | null = await players.findOne({ _id })
+        if (player == null) {
+            res.status(404).json({ _id })
+            return
+        }
+        res.status(200).json(player)
+    }
+    catch(e){
+        console.log("error: ", e)
+        res.status(500).json({ error: 'Internal server error' });
+    }
+})
+
+
+
 client.connect().then(async () => {
     logger.info('connected successfully to MongoDB')
     db = client.db("game")
+    players = db.collection("players")
     
     if (DISABLE_SECURITY) {
       passport.use("oidc", new CustomStrategy((req, done) => done(null, { preferred_username: req.query.user, roles: req.query.role })))
@@ -141,7 +162,7 @@ client.connect().then(async () => {
   
       async function verify(tokenSet: any, userInfo: any, done: any) {
         logger.info("oidc " + JSON.stringify(userInfo))
-        // console.log('userInfo', userInfo)
+        console.log('userInfo', userInfo)
         userInfo.roles = userInfo.groups.includes(GROUP_ID) ? ["admin"] : ["player"]
         return done(null, userInfo)
       }
