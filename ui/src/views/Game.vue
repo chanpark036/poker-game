@@ -1,15 +1,12 @@
 <template>
+  <button @click="newGame">New game</button>
   <p>Room id: {{ roomId }}</p>
   <p>My id: {{ playerId }}</p>
 
   <div> 
-    <b-button class="mx-2 my-2" size="sm" @click="socket.emit('join-game')">New Game</b-button>
-    <div>
-     Players
-    <ul>
-        <li v-for="player in playerIds">{{ player }}</li>
-    </ul>
-</div>
+    <p>Current Player: {{ currentTurnPlayerId }}</p>
+    <p>Current Phase: {{ gamePhase }}</p>
+  </div>
     <!--<b-badge class="mr-2 mb-2" :variant="myTurn ? 'primary' : 'secondary'">turn: {{ currentTurnPlayerIndex }}</b-badge>-->
 
     <div class="table">
@@ -22,11 +19,12 @@
         :myId="playerId"
         :currentTurnPlayerId="currentTurnPlayerId"
         :myCards="myCards"
+        :myTotal = "playerStacks[playerId]"
+        :betsThisPhase = "betsThisPhase"
       />
     </div>
     
     
-  </div>
 </template>
 
 <style scoped>
@@ -73,16 +71,42 @@ const socket = io()
 const cards: Ref<Card[]> = ref([])
 const currentTurnPlayerIndex = ref()
 const playerIds: Ref<PlayerId[]> = ref([])
-const myCards: Ref<CardId[]> = ref([])
+const myCards: Ref<Card[]> = ref([])
+const gamePhase = ref("")
+const playerStacks: Ref<Record<PlayerId, number>> = ref({})
+const betsThisPhase: Ref<Record<PlayerId, number>> = ref({})
+const smallBlindIndex = ref(0)
 
-const currentTurnPlayerId = playerIds.value[currentTurnPlayerIndex.value] 
+const currentTurnPlayerId = computed(() => playerIds.value[currentTurnPlayerIndex.value] )
+const smallBlindPlayerId: Ref<PlayerId> = computed(() => playerIds.value[smallBlindIndex.value])
+const bigBlindPlayerId: Ref<PlayerId> = computed(() => {
+  if (smallBlindIndex.value == playerIds.value.length - 1) {
+    return playerIds.value[0]
+  }
+  else {
+    return playerIds.value[smallBlindIndex.value + 1]
+  }
+})
 
 
+// betsThisPhase.value[smallBlindPlayerId.value] = 10
+// betsThisPhase.value[bigBlindPlayerId.value] = 20
+// socket.emit("update-bets")
 
 socket.on("game-state", (gameState, cards) => {
   playerIds.value = gameState.playerIds
   currentTurnPlayerIndex.value = gameState.currentTurnPlayerIndex
   myCards.value = gameState.cardsByPlayer[props.playerId].map((cardId: CardId) => cards.find((card: Card) => card._id === cardId))
+  gamePhase.value = gameState.phase
+  playerStacks.value = gameState.playerStacks
+  smallBlindIndex.value = gameState.smallBlindIndex
+
+  betsThisPhase.value = gameState.betsThisPhase
 })
 
+
+function newGame() {
+  socket.emit('start-game', props.roomId)
+  socket.emit('get-game-state', props.roomId)
+}
 </script>

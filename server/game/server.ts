@@ -28,7 +28,6 @@ const port = parseInt(process.env.SERVER_PORT || "8101")
     
 //     console.log("New client")
 const waitingPlayers: Record<RoomId, PlayerId[]> = {}
-
 io.on("connection", function(socket){
     
     socket.on("create-room", (roomId: RoomId)=>{
@@ -70,6 +69,12 @@ io.on("connection", function(socket){
         const gameState = await getGameState(roomId)
         const cards = await getCards() 
         console.log(cards[0])
+        socket.emit("game-state", gameState, cards)
+    })
+
+    socket.on("update-bets", async (gameState) => {
+        await tryToUpdateGameState(gameState)
+        const cards = await getCards()
         socket.emit("game-state", gameState, cards)
     })
 
