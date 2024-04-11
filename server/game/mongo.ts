@@ -101,7 +101,8 @@ export async function getCards(){
 	const db = mongoClient.db(DB)
 	const cardCollection = db.collection("cards")
 	const cardArray = await cardCollection.find().toArray()
-	return cardArray.map((card) => toCard(card))
+	const cards = cardArray.map((card) => toCard(card))
+	return cards
 }
 
 function toCard(card: any): Card{

@@ -25,7 +25,7 @@ let waitingPlayers: Ref<PlayerId[]> = ref([])
 socket.on("player-joined", (roomId: RoomId, waitingPlayers1: PlayerId[]) => {
     if (roomId == props.roomId) {
         waitingPlayers.value = waitingPlayers1
-        console.log(waitingPlayers.value)
+        // console.log(waitingPlayers.value)
     }
 })
 
@@ -49,7 +49,7 @@ function startGame() {
     console.log("game started")
     socket.emit('start-game', props.roomId)
 
-    console.log("roomId " + props.roomId + "player " + props.playerId)
+    // console.log("roomId " + props.roomId + "player " + props.playerId)
 }
 
 onMounted(() => {

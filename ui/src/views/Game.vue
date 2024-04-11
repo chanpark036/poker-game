@@ -21,6 +21,7 @@
       <PlayerHand 
         :myId="playerId"
         :currentTurnPlayerId="currentTurnPlayerId"
+        :myCards="myCards"
       />
     </div>
     
@@ -46,7 +47,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref } from 'vue'
 import { io } from "socket.io-client"
-import { Card, PlayerId } from "../../../server/game/model"
+import { Card, CardId, PlayerId } from "../../../server/game/model"
 import CardRun from "../components/CardRun.vue"
 import PlayerHand from "../components/PlayerHand.vue"
 
@@ -72,15 +73,16 @@ const socket = io()
 const cards: Ref<Card[]> = ref([])
 const currentTurnPlayerIndex = ref()
 const playerIds: Ref<PlayerId[]> = ref([])
+const myCards: Ref<CardId[]> = ref([])
 
-currentTurnPlayerIndex.value = 1
-// const currentTurnPlayerId = playerIds[currentTurnPlayerIndex.value] 
+const currentTurnPlayerId = playerIds.value[currentTurnPlayerIndex.value] 
 
 
 
-socket.on("game-state", (gameState) => {
- playerIds.value = gameState.playerIds
- console.log(playerIds.value)
+socket.on("game-state", (gameState, cards) => {
+  playerIds.value = gameState.playerIds
+  currentTurnPlayerIndex.value = gameState.currentTurnPlayerIndex
+  myCards.value = gameState.cardsByPlayer[props.playerId].map((cardId: CardId) => cards.find((card: Card) => card._id === cardId))
 })
 
 </script>

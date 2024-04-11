@@ -30,7 +30,6 @@ function joinRoom() {
 
   }
   else {
-    console.log("NO")
   }
 }
 </script>

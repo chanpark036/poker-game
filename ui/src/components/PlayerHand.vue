@@ -1,7 +1,7 @@
 <template>
     <div class="playerCards">
-        <div class="card-space">{{  }}</div>
-        <div class="card-space">{{  }}</div>
+        <div class="card-space">{{ myCards[0] }}</div>
+        <div class="card-space">{{ myCards[1] }}</div>
         
     </div>
     <div v-if="myTurn">
@@ -40,17 +40,19 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { Card } from '../../../server/game/model';
 
 
     interface Props {
         myId?: string,
-        currentTurnPlayerId?: number
+        currentTurnPlayerId?: string
+        myCards?: Card[]
     }
 
     // default values for props
     const props = withDefaults(defineProps<Props>(), {
         myId: "all",
-        currentTurnPlayerIndex: -1
+        currentTurnPlayerIndex: -1,
     })
 
     const myTurn = computed(() => props.myId == props.currentTurnPlayerIndex)

@@ -47,17 +47,17 @@ io.on("connection", function(socket){
         }
         console.log("room " + roomId + " joined by player " + playerId)
         console.log("socket id is " + socket.id)
-        console.log(waitingPlayers[roomId])
+        // console.log(waitingPlayers[roomId])
         io.emit("player-joined", roomId, waitingPlayers[roomId])
     })
 
     socket.on("refresh", (roomId) => {
-        console.log(waitingPlayers[roomId])
+        // console.log(waitingPlayers[roomId])
         io.emit("player-joined", roomId, waitingPlayers[roomId])
     })
 
     socket.on("start-game", async (roomId: RoomId) => {
-        console.log("start-game received")
+        // console.log("start-game received")
         const cards: Card[] = await getCards()
         const cardIds: CardId[] = cards.map((x:Card) => x._id)
     
@@ -68,7 +68,9 @@ io.on("connection", function(socket){
     
     socket.on("get-game-state", async (roomId) => {
         const gameState = await getGameState(roomId)
-        socket.emit("game-state", gameState)
+        const cards = await getCards() 
+        console.log(cards[0])
+        socket.emit("game-state", gameState, cards)
     })
 
   })

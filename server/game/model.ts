@@ -69,9 +69,10 @@ export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId, cardIds: 
     smallBlindIndex: 0,
     communityCards: [],
     deckCards: cardIds,
-    playerStacks: playerStacks
+    playerStacks: playerStacks,
   }
 }
+
 
 function dealCards(playerIds: PlayerId[], cards: CardId[]){
   const cardsByPlayer: Record<PlayerId,CardId[]> = {}
