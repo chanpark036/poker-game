@@ -41,9 +41,9 @@ async function refresh() {
 }
 onMounted(refresh)
 
-async function submit() {
+async function save() {
   await fetch(
-    "/api/profileInfo/submit",
+    "/api/profileInfo/save",
     { method: "POST" }
   )
   await refresh()

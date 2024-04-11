@@ -137,6 +137,21 @@ app.get("/api/profileInfo", checkAuthenticated, checkRole(["player"]),async (req
     }
 })
 
+app.post("/api/profileInfo/save", checkAuthenticated, async (req, res) => {
+    const playerInfo: Player = req.body
+    const result = await players.updateOne(
+      {
+        _id: req.user.preferred_username,
+      },
+      {
+        _id: req.user.preferred_username, ...playerInfo
+      },
+      {
+        upsert: true
+      }
+    )
+    res.status(200).json({ status: "ok" })
+  })
 
 
 client.connect().then(async () => {
