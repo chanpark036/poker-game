@@ -4,6 +4,12 @@
 
   <div> 
     <b-button class="mx-2 my-2" size="sm" @click="socket.emit('join-game')">New Game</b-button>
+    <div>
+     Players
+    <ul>
+        <li v-for="player in playerIds">{{ player }}</li>
+    </ul>
+</div>
     <!--<b-badge class="mr-2 mb-2" :variant="myTurn ? 'primary' : 'secondary'">turn: {{ currentTurnPlayerIndex }}</b-badge>-->
 
     <div class="table">
@@ -56,13 +62,25 @@ const props = withDefaults(defineProps<Props>(), {
   playerId: "all",
 })
 
+onMounted(() => {
+  socket.emit("get-game-state", props.roomId)
+})
+
 const socket = io()
 
 // All of our state
 const cards: Ref<Card[]> = ref([])
 const currentTurnPlayerIndex = ref()
+const playerIds: Ref<PlayerId[]> = ref([])
 
 currentTurnPlayerIndex.value = 1
 // const currentTurnPlayerId = playerIds[currentTurnPlayerIndex.value] 
+
+
+
+socket.on("game-state", (gameState) => {
+ playerIds.value = gameState.playerIds
+ console.log(playerIds.value)
+})
 
 </script>

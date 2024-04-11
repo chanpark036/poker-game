@@ -50,6 +50,7 @@ export interface GameState {
 
 export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId, cardIds: CardId[]): GameState {
   const playerStacks = {}
+  console.log(playerIds)
   for(const playerId of playerIds){
     fillPlayerStack(playerId,playerStacks)
   }

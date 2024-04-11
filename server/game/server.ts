@@ -1,7 +1,7 @@
 import http from "http"
 import { Server } from "socket.io"
 import { Card, GameState, PlayerId, RoomId, createEmptyGame, CardId } from "./model"
-import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState} from "./mongo"
+import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState, getGameState} from "./mongo"
 
 async function main() {
 
@@ -56,16 +56,20 @@ io.on("connection", function(socket){
         io.emit("player-joined", roomId, waitingPlayers[roomId])
     })
 
-    socket.on("start-game", async (roomId: RoomId, playerIds: PlayerId[]) => {
+    socket.on("start-game", async (roomId: RoomId) => {
         console.log("start-game received")
         const cards: Card[] = await getCards()
         const cardIds: CardId[] = cards.map((x:Card) => x._id)
     
-        const gameState: GameState = createEmptyGame(playerIds, roomId, cardIds)
+        const gameState: GameState = createEmptyGame(waitingPlayers[roomId], roomId, cardIds)
         await tryToUpdateGameState(gameState)
         io.emit("game-started")
     })
     
+    socket.on("get-game-state", async (roomId) => {
+        const gameState = await getGameState(roomId)
+        socket.emit("game-state", gameState)
+    })
 
   })
 

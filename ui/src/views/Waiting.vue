@@ -2,7 +2,6 @@
 This is Room {{ roomId }}
 I am Player {{ playerId }}
 <button @click="startGame"> Start Game </button>
-<button @click="socket.emit('refresh', roomId)"> Refresh </button>
 
 <div>
     Waiting Players
@@ -15,7 +14,7 @@ I am Player {{ playerId }}
 <script setup lang="ts">
 import { io } from "socket.io-client"
 import { PlayerId, RoomId } from "../../../server/game/model";
-import { Ref, ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 const socket = io()
 const router = useRouter()
@@ -48,8 +47,12 @@ socket.on("game-started", () => {
 
 function startGame() {
     console.log("game started")
-    socket.emit('start-game', props.roomId, waitingPlayers.value)
+    socket.emit('start-game', props.roomId)
 
     console.log("roomId " + props.roomId + "player " + props.playerId)
 }
+
+onMounted(() => {
+    socket.emit('refresh', props.roomId)
+})
 </script>
