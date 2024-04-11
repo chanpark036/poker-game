@@ -23,11 +23,12 @@ const routes = [
 	},
 
 	{
-		path: "/game/:roomId",
+		path: "/:roomId/:playerId",
 		component: Waiting,
 		props (route) {
 			return {
-				roomId: route.params.roomId
+				roomId: route.params.roomId,
+				playerId: route.params.playerId
 			}
 		}
 	},

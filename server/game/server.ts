@@ -27,8 +27,10 @@ const port = parseInt(process.env.SERVER_PORT || "8101")
 //     }
     
 //     console.log("New client")
+const waitingPlayers: Record<RoomId, PlayerId[]> = {}
 
 io.on("connection", function(socket){
+    
     socket.on("create-room", (roomId: RoomId)=>{
         socket.join(roomId);
         console.log("room " + roomId + "created by player")
@@ -36,18 +38,32 @@ io.on("connection", function(socket){
     })
 
     socket.on("join-room", (roomId: RoomId, playerId: PlayerId)=>{
-        socket.join(roomId);
+        // socket.join(roomId);
+        if (waitingPlayers[roomId]){
+            waitingPlayers[roomId].push(playerId)
+        }
+        else {
+            waitingPlayers[roomId] = [playerId]
+        }
         console.log("room " + roomId + " joined by player " + playerId)
         console.log("socket id is " + socket.id)
-        io.emit("player-joined", roomId, playerId)
+        console.log(waitingPlayers[roomId])
+        io.emit("player-joined", roomId, waitingPlayers[roomId])
+    })
+
+    socket.on("refresh", (roomId) => {
+        console.log(waitingPlayers[roomId])
+        io.emit("player-joined", roomId, waitingPlayers[roomId])
     })
 
     socket.on("start-game", async (roomId: RoomId, playerIds: PlayerId[]) => {
+        console.log("start-game received")
         const cards: Card[] = await getCards()
         const cardIds: CardId[] = cards.map((x:Card) => x._id)
     
         const gameState: GameState = createEmptyGame(playerIds, roomId, cardIds)
         await tryToUpdateGameState(gameState)
+        io.emit("game-started")
     })
     
 

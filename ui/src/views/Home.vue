@@ -1,6 +1,8 @@
 <template>
   <div>
     <input type="string" v-model="roomCode" placeholder="Enter Room Code">
+
+    <input type="string" v-model="playerId" placeholder="Enter Player Id">
     <button @click="joinRoom">Join</button>
   </div>
 </template>
@@ -14,17 +16,16 @@ import { io } from "socket.io-client"
 const socket = io()
 
 const roomCode = ref("")
+const playerId = ref("")
 const router = useRouter()
 
 
 function joinRoom() {
   if (router){
     const roomId = roomCode.value
-    const playerId = "1"
-    router.push(`/game/${roomId}`)
-    console.log("switching")
+    router.push(`/${roomId}/${playerId.value}`)
     
-    socket.emit("join-room", roomId, playerId)
+    socket.emit("join-room", roomId, playerId.value)
     
 
   }
