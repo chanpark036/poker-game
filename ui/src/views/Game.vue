@@ -71,7 +71,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 onMounted(() => {
-  console.log("getting new game state")
+  // console.log("getting new game state")
   socket.emit("get-new-game-state", props.roomId)
 
 })
@@ -91,7 +91,8 @@ const defaultGameState: GameState = {
   smallBlindIndex: 0,
   communityCards: [],
   deckCards: [],
-  playerStacks: {}
+  playerStacks: {},
+  lastPlayerTurnIndex: 0
 }
 
 
@@ -112,7 +113,7 @@ const lastPlayerTurnIndex = ref()
 const currentTurnPlayerId = computed(() => playerIds.value[currentTurnPlayerIndex.value] )
 const highestBet = computed(() => {
         const values: number[] = Object.values(betsThisPhase.value);
-        console.log(values)
+        // console.log(values)
         return Math.max(...values);
       })
 const smallBlindPlayerId: Ref<PlayerId> = computed(() => playerIds.value[smallBlindIndex.value])
@@ -130,7 +131,7 @@ const bigBlindPlayerId: Ref<PlayerId> = computed(() => {
 
 socket.on("new-game-state", (newGameState: GameState, cards, roomId) => {
   if (props.roomId == roomId) {
-    console.log("updating game-state")
+    // console.log("updating game-state")
     gameState.value = newGameState
 
     playerIds.value = newGameState.playerIds
@@ -179,7 +180,7 @@ socket.on("new-game-state", (newGameState: GameState, cards, roomId) => {
 
 socket.on("game-state", (newGameState, roomId) => {
   if (roomId == props.roomId) {
-    console.log("updated-game-state")
+    // console.log("updated-game-state")
     gameState.value = newGameState
 
     playerIds.value = newGameState.playerIds
@@ -305,9 +306,26 @@ function doAction(actionType: string, amount: number) {
   }
 
   if (actionType == "fold") {
+    console.log("fold action")
     playersStillIn.value[currentTurnPlayerIndex.value] = ""
+    console.log(playersStillIn.value)
+    const win = onlyOnePlayerLeft(playersStillIn.value)
+    if (win) {
+      const winnerId = findWinner(playersStillIn.value)
+      playerStacks.value[winnerId] += potAmount.value
+      potAmount.value = 0
+      const newPhase = "river"
+      const updatedGameState: GameState = 
+      {...gameState.value, 
+        playerStacks: playerStacks.value,
+        potAmount: potAmount.value,
+        phase: newPhase,
+        playersStillIn: playersStillIn.value
+      }
+      socket.emit("change-phase", updatedGameState)
+    }
 
-    if (props.playerId == playerIds.value[lastPlayerTurnIndex.value]) {
+    else if (props.playerId == playerIds.value[lastPlayerTurnIndex.value]) {
       currentTurnPlayerIndex.value = smallBlindIndex.value
       while (playersStillIn.value[currentTurnPlayerIndex.value] == "") {
         currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
@@ -317,7 +335,8 @@ function doAction(actionType: string, amount: number) {
       const updatedGameState: GameState = 
       {...gameState.value, 
         currentTurnPlayerIndex: currentTurnPlayerIndex.value,
-        lastPlayerTurnIndex: lastPlayerTurnIndex.value
+        lastPlayerTurnIndex: lastPlayerTurnIndex.value,
+        playersStillIn: playersStillIn.value
       }
       socket.emit("change-phase", updatedGameState)
     }
@@ -348,5 +367,31 @@ function findPreviousNonEmptyIndex(arr: string[], smallBlindIndex: number): numb
         }
     }
     return -1;
+}
+
+function onlyOnePlayerLeft(arr: string[]): boolean {
+  let count = 0
+  for (let a of arr ) {
+    if (a) {
+      count += 1
+    }
+  }
+  console.log(count)
+  if (count == 1) {
+    return true
+  }
+  else {
+    return false
+  }
+}
+
+function findWinner(arr: string[]): string {
+  for (let a of arr ) {
+    if (a != "") {
+      console.log("winner is " + a)
+      return a
+    }
+  }
+  return ""
 }
 </script>

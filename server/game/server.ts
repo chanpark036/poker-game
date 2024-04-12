@@ -113,7 +113,11 @@ io.on("connection", function(socket){
         }
 
         if (gameState.phase == "river") {
+            console.log("determine a winner")
+            const newPhase = "game-over"
+            const newGameState = {...gameState, phase: newPhase, currentTurnPlayerIndex: -1 }
 
+            io.emit("game-state", newGameState, newGameState.roomId)
         }
 
     })
