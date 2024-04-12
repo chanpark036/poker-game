@@ -92,6 +92,7 @@ const defaultGameState: GameState = {
 const gameState: Ref<GameState> = ref(defaultGameState)
 const cards: Ref<Card[]> = ref([])
 const currentTurnPlayerIndex = ref()
+const initialTurnPlayerIndex = ref()
 const playerIds: Ref<PlayerId[]> = ref([])
 const myCards: Ref<Card[]> = ref([])
 const gamePhase = ref("")
@@ -129,7 +130,7 @@ socket.on("new-game-state", (newGameState: GameState, cards) => {
   playerStacks.value = newGameState.playerStacks
   smallBlindIndex.value = newGameState.smallBlindIndex
   potAmount.value = newGameState.potAmount
-
+  initialTurnPlayerIndex.value = (smallBlindIndex.value + 1) % playerIds.value.length
 
   betsThisPhase.value = newGameState.betsThisPhase
 
@@ -142,11 +143,11 @@ socket.on("new-game-state", (newGameState: GameState, cards) => {
 
 
 
-  // const updatedGameState: GameState = { ...gameState.value, 
-  //                           betsThisPhase: betsThisPhase.value, 
-  //                           playerStacks: playerStacks.value, 
-  //                           currentTurnPlayerIndex: currentTurnPlayerIndex.value }
-  // updateGameState(updatedGameState)
+  const updatedGameState: GameState = { ...gameState.value, 
+                            betsThisPhase: betsThisPhase.value, 
+                            playerStacks: playerStacks.value, 
+                            currentTurnPlayerIndex: currentTurnPlayerIndex.value }
+  updateGameState(updatedGameState)
 
 })
 
@@ -182,6 +183,7 @@ function doAction(actionType: string, amount: number) {
     currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playerIds.value.length
     const updatedGameState: GameState = {...gameState.value, currentTurnPlayerIndex: currentTurnPlayerIndex.value}
     updateGameState(updatedGameState)
+    
   }
   
   if (actionType == "call") {
