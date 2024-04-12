@@ -28,7 +28,11 @@
                             <b-form-input id="input-3" v-model="form.earnings" placeholder="Amount in Account" required></b-form-input>
                         </b-form-group>
 
+                        <b-form-file v-model="file" class="mt-3" plain accept="image/jpeg, image/png" name="file"></b-form-file>
+                        <div class="mt-3">Selected file: {{ file ? file.name : '' }}</div>
+
                         <b-button type="submit" variant="primary">Submit</b-button>
+                        <b-button @click="saveImage" variant="primary">save image</b-button>
                     </b-form>
                 </b-card-text>
 
@@ -38,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref, inject, Ref, onMounted } from 'vue'
+import { ref, inject, Ref, onMounted } from 'vue'
 import { Player } from '../../../server/game/model'
 import {PlayerProfileInfo} from '../../../server/site/data'
 
@@ -53,6 +57,7 @@ const form: Ref<PlayerProfileInfo> = ref({
     gamesPlayed: 0
 })
 const editMode = ref(false)
+const file: Ref<File | null> = ref(null)
 
 //if they already have player profile-> display player profile + access to everything else
 //if they do not have player profile -> they MUST create player profile first before they can do anything else
@@ -92,5 +97,24 @@ async function save() {
         body: JSON.stringify(form.value)}
     )
     await refresh()
+}
+
+async function saveImage() {
+    console.log(file.value)
+    if(file.value != null)
+    {
+        const formData = new FormData()
+        formData.append('file',file.value)
+        formData.forEach((value, key) => {
+        console.log("key %s: value %s", key, value);
+        })
+        
+        await fetch(
+            "/api/profileInfo/upload",
+            { method: "POST",
+            body: formData}
+        )
+    }
+
 }
 </script>
