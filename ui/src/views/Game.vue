@@ -152,6 +152,7 @@ socket.on("new-game-state", (newGameState: GameState, cards) => {
 
 
 socket.on("game-state", (gameState) => {
+  console.log("updated-game-state")
   gameState.value = gameState
 
   playerIds.value = gameState.playerIds

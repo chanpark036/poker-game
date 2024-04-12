@@ -74,7 +74,7 @@ io.on("connection", function(socket){
 
     socket.on("update-game", async (gameState) => {
         await tryToUpdateGameState(gameState)
-        socket.emit("game-state", gameState)
+        io.emit("game-state", gameState)
     })
 
   })
