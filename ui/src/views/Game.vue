@@ -10,9 +10,11 @@
     <p>Small Blind Bet: {{ betsThisPhase[smallBlindPlayerId] }}</p>
     <p>Big Blind: {{ bigBlindPlayerId }}</p>
     <p>Pot: {{ potAmount }}</p>
-
+    <p>LastPlayerturnIndex: {{ lastPlayerTurnIndex }}</p>
+    <ul>
+      <li v-for="player in playersStillIn">{{ player }}</li>
+    </ul>
   </div>
-    <!--<b-badge class="mr-2 mb-2" :variant="myTurn ? 'primary' : 'secondary'">turn: {{ currentTurnPlayerIndex }}</b-badge>-->
 
     <div class="table">
       <CardRun 
@@ -69,6 +71,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 onMounted(() => {
+  console.log("getting new game state")
   socket.emit("get-new-game-state", props.roomId)
 
 })
@@ -90,6 +93,8 @@ const defaultGameState: GameState = {
   deckCards: [],
   playerStacks: {}
 }
+
+
 const gameState: Ref<GameState> = ref(defaultGameState)
 const deckCards: Ref<Card[]> = ref([])
 const currentTurnPlayerIndex = ref()
@@ -102,6 +107,7 @@ const smallBlindIndex = ref(0)
 const potAmount = ref(0)
 const playersStillIn: Ref<PlayerId[]> = ref([])
 const communityCards: Ref<Card[]> = ref([])
+const lastPlayerTurnIndex = ref()
 
 const currentTurnPlayerId = computed(() => playerIds.value[currentTurnPlayerIndex.value] )
 const highestBet = computed(() => {
@@ -124,6 +130,7 @@ const bigBlindPlayerId: Ref<PlayerId> = computed(() => {
 
 socket.on("new-game-state", (newGameState: GameState, cards, roomId) => {
   if (props.roomId == roomId) {
+    console.log("updating game-state")
     gameState.value = newGameState
 
     playerIds.value = newGameState.playerIds
@@ -142,12 +149,16 @@ socket.on("new-game-state", (newGameState: GameState, cards, roomId) => {
 
     betsThisPhase.value = newGameState.betsThisPhase
 
+    for( let player of playerIds.value) {
+      betsThisPhase.value[player] = 0
+    }
     betsThisPhase.value[smallBlindPlayerId.value] = 10
     betsThisPhase.value[bigBlindPlayerId.value] = 20
     playerStacks.value[smallBlindPlayerId.value]-=10
     playerStacks.value[bigBlindPlayerId.value]-=20
     potAmount.value = 30
 
+    lastPlayerTurnIndex.value = playerIds.value.indexOf(bigBlindPlayerId.value)
 
     currentTurnPlayerIndex.value = (smallBlindIndex.value + 2) % playerIds.value.length
 
@@ -157,7 +168,9 @@ socket.on("new-game-state", (newGameState: GameState, cards, roomId) => {
                               betsThisPhase: betsThisPhase.value, 
                               playerStacks: playerStacks.value, 
                               currentTurnPlayerIndex: currentTurnPlayerIndex.value,
-                              potAmount: potAmount.value }
+                              potAmount: potAmount.value,
+                              lastPlayerTurnIndex: lastPlayerTurnIndex.value
+                            }
     updateGameState(updatedGameState)
   }
 
@@ -179,7 +192,7 @@ socket.on("game-state", (newGameState, roomId) => {
 
     communityCards.value = newGameState.communityCards.map((cardId: CardId) => deckCards.value.find((card: Card) => card._id === cardId))
 
-
+    lastPlayerTurnIndex.value = newGameState.lastPlayerTurnIndex
 
 
     betsThisPhase.value = newGameState.betsThisPhase
@@ -199,14 +212,27 @@ function updateGameState(gameState: GameState) {
 function doAction(actionType: string, amount: number) {
   if (actionType == "check") {
 
-    if (props.playerId == bigBlindPlayerId.value && gamePhase.value == "preflop") {
-      console.log("MOVe TO FLOP")
+    if (props.playerId == playerIds.value[lastPlayerTurnIndex.value]) {
       currentTurnPlayerIndex.value = smallBlindIndex.value
-      const updatedGameState: GameState = {...gameState.value, currentTurnPlayerIndex: currentTurnPlayerIndex.value}
+      while (playersStillIn.value[currentTurnPlayerIndex.value] == "") {
+        currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
+      }
+      lastPlayerTurnIndex.value = findPreviousNonEmptyIndex(playersStillIn.value, currentTurnPlayerIndex.value)
+
+      const updatedGameState: GameState = 
+      {...gameState.value, 
+        currentTurnPlayerIndex: currentTurnPlayerIndex.value,
+        lastPlayerTurnIndex: lastPlayerTurnIndex.value
+      }
+
       socket.emit("change-phase", updatedGameState)
+      
     }
     else {
       currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
+      while (playersStillIn.value[currentTurnPlayerIndex.value] == "") {
+        currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
+      }
       const updatedGameState: GameState = {...gameState.value, currentTurnPlayerIndex: currentTurnPlayerIndex.value}
       updateGameState(updatedGameState)
     }
@@ -215,41 +241,112 @@ function doAction(actionType: string, amount: number) {
 
   
   if (actionType == "call") {
-    currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
     betsThisPhase.value[props.playerId] += amount
     playerStacks.value[props.playerId] -= amount
     potAmount.value += amount
-    const updatedGameState: GameState = {...gameState.value, 
-                                        currentTurnPlayerIndex: currentTurnPlayerIndex.value,
-                                        betsThisPhase: betsThisPhase.value,
-                                        playerStacks: playerStacks.value,
-                                        potAmount: potAmount.value 
-                      }
-    updateGameState(updatedGameState)
-  }
 
-  if (actionType == "raise") {
-    if (amount > playerStacks.value[props.playerId]) {
-      alert("invalid raise amount")
+    if (props.playerId == playerIds.value[lastPlayerTurnIndex.value]) {
+      currentTurnPlayerIndex.value = smallBlindIndex.value
+      while (playersStillIn.value[currentTurnPlayerIndex.value] == "") {
+        currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
+      }
+      lastPlayerTurnIndex.value = findPreviousNonEmptyIndex(playersStillIn.value, currentTurnPlayerIndex.value)
+      const updatedGameState: GameState = 
+      {...gameState.value, 
+        currentTurnPlayerIndex: currentTurnPlayerIndex.value,
+        lastPlayerTurnIndex: lastPlayerTurnIndex.value,
+        betsThisPhase: betsThisPhase.value,
+        playerStacks: playerStacks.value,
+        potAmount: potAmount.value
+      }
+      socket.emit("change-phase", updatedGameState)
     }
     else {
       currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
+      while (playersStillIn.value[currentTurnPlayerIndex.value] == "") {
+        currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
+      }
+    
+      const updatedGameState: GameState = {
+        ...gameState.value, 
+            currentTurnPlayerIndex: currentTurnPlayerIndex.value,
+            betsThisPhase: betsThisPhase.value,
+            playerStacks: playerStacks.value,
+            potAmount: potAmount.value 
+        }
+      updateGameState(updatedGameState)
+    }
+  }
+
+  if (actionType == "raise") {
+    if (amount > playerStacks.value[props.playerId] || amount < highestBet.value) {
+      alert("invalid raise amount")
+    }
+    else {
+      lastPlayerTurnIndex.value = findPreviousNonEmptyIndex(playersStillIn.value, currentTurnPlayerIndex.value)
+
+      currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
+      while (playersStillIn.value[currentTurnPlayerIndex.value] == "") {
+        currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
+      }
       betsThisPhase.value[props.playerId] += amount
       playerStacks.value[props.playerId] -= amount
       potAmount.value += amount
-      const updatedGameState: GameState = {...gameState.value, 
-                                          currentTurnPlayerIndex: currentTurnPlayerIndex.value,
-                                          betsThisPhase: betsThisPhase.value,
-                                          playerStacks: playerStacks.value,
-                                          potAmount: potAmount.value 
-                        }
+      const updatedGameState: GameState = {
+        ...gameState.value, 
+            currentTurnPlayerIndex: currentTurnPlayerIndex.value,
+            betsThisPhase: betsThisPhase.value,
+            playerStacks: playerStacks.value,
+            potAmount: potAmount.value,
+            lastPlayerTurnIndex: lastPlayerTurnIndex.value
+        }
       updateGameState(updatedGameState)
     }
   }
 
   if (actionType == "fold") {
-    currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
+    playersStillIn.value[currentTurnPlayerIndex.value] = ""
 
+    if (props.playerId == playerIds.value[lastPlayerTurnIndex.value]) {
+      currentTurnPlayerIndex.value = smallBlindIndex.value
+      while (playersStillIn.value[currentTurnPlayerIndex.value] == "") {
+        currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
+      }
+      lastPlayerTurnIndex.value = findPreviousNonEmptyIndex(playersStillIn.value, currentTurnPlayerIndex.value)
+
+      const updatedGameState: GameState = 
+      {...gameState.value, 
+        currentTurnPlayerIndex: currentTurnPlayerIndex.value,
+        lastPlayerTurnIndex: lastPlayerTurnIndex.value
+      }
+      socket.emit("change-phase", updatedGameState)
+    }
+    else {
+      while (playersStillIn.value[currentTurnPlayerIndex.value] == "") {
+        currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length
+      }
+
+      const updatedGameState: GameState = {
+        ...gameState.value, 
+          currentTurnPlayerIndex: currentTurnPlayerIndex.value,
+          playersStillIn: playersStillIn.value,
+        }
+        updateGameState(updatedGameState)
+      }
   }
+}
+
+function findPreviousNonEmptyIndex(arr: string[], smallBlindIndex: number): number {
+    for (let i = smallBlindIndex - 1; i >= 0; i--) {
+        if (arr[i] !== "") {
+            return i;
+        }
+    }
+    for (let i = arr.length - 1; i > smallBlindIndex; i--) {
+        if (arr[i] !== "") {
+            return i; 
+        }
+    }
+    return -1;
 }
 </script>

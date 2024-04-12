@@ -3,8 +3,11 @@
     <p>Highest Bet: {{ highestBet }}</p>
 
     <div class="playerCards">
-        <div class="card-space">{{ myCards[0].rank }} {{ myCards[0].suit }}</div>
-        <div class="card-space">{{ myCards[1].rank }} {{ myCards[1].suit }}</div>
+        <div class="card-space" v-if="myCards[0]">{{ myCards[0].rank }} {{ myCards[0].suit }}</div>
+        <div calss="cards-space" v-else></div>
+        <div class="card-space" v-if="myCards[1]">{{ myCards[1].rank }} {{ myCards[1].suit }}</div>
+        <div calss="cards-space" v-else></div>
+
     </div>
     <div v-if="myTurn">
         <button @click="$emit('action', 'check', 0)" v-if="myBet === highestBet">Check</button>

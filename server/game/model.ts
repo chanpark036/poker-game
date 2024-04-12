@@ -46,6 +46,7 @@ export interface GameState {
   communityCards: CardId[]
   deckCards: CardId[]
   playerStacks: Record<PlayerId, number>
+  lastPlayerTurnIndex: number
 }
 
 export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId, cardIds: CardId[]): GameState {
@@ -70,6 +71,7 @@ export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId, cardIds: 
     communityCards: [],
     deckCards: cardIds,
     playerStacks: playerStacks,
+    lastPlayerTurnIndex: 0
   }
 }
 

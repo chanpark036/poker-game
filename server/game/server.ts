@@ -71,7 +71,7 @@ io.on("connection", function(socket){
         const gameState: GameState = createEmptyGame(waitingPlayers[roomId], roomId, cardIds)        
 
         // console.log(cards[0])
-        socket.emit("new-game-state", gameState, cards, roomId)
+        io.emit("new-game-state", gameState, cards, roomId)
     })
 
     socket.on("update-game", async (gameState) => {
@@ -80,6 +80,11 @@ io.on("connection", function(socket){
     })
 
     socket.on("change-phase", (gameState) => {
+
+        for( let player of gameState.playerIds) {
+            gameState.betsThisPhase[player] = 0
+          }
+
         if (gameState.phase == "preflop") {
             console.log("changing to flop")
             const newPhase = "flop"
@@ -87,6 +92,28 @@ io.on("connection", function(socket){
             const newGameState = {...gameState, phase: newPhase, communityCards: flop}
             console.log(newGameState)
             io.emit("game-state", newGameState, newGameState.roomId)
+        }
+
+        if (gameState.phase == "flop") {
+            console.log("changing to turn")
+            const newPhase = "turn"
+            const turn = getCardAmt(gameState.deckCards, 1)
+            const newGameState = {...gameState, phase: newPhase, communityCards: gameState.communityCards.concat(turn)}
+            console.log(newGameState)
+            io.emit("game-state", newGameState, newGameState.roomId)
+        }
+
+        if (gameState.phase == "turn") {
+            console.log("changing to flop")
+            const newPhase = "river"
+            const river= getCardAmt(gameState.deckCards, 1)
+            const newGameState = {...gameState, phase: newPhase, communityCards: gameState.communityCards.concat(river)}
+            console.log(newGameState)
+            io.emit("game-state", newGameState, newGameState.roomId)
+        }
+
+        if (gameState.phase == "river") {
+
         }
 
     })
