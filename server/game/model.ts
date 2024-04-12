@@ -90,6 +90,16 @@ function dealCards(playerIds: PlayerId[], cards: CardId[]){
   return cardsByPlayer
 }
 
+export function getCardAmt(cards: CardId[], num: number) {
+  const cardies: CardId[] = []
+
+  for (let i = 0; i < num; i++) {
+    cardies.push(cards.pop())
+  }
+  return cardies
+}
+
+
 function fillPlayerStack(playerId: PlayerId, currentPlayerStacks: Record<PlayerId, number>, amount: number = 500){
   //api call dealing with subtracting amount from player profile
   if(playerId in currentPlayerStacks){

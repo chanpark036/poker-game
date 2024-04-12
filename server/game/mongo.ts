@@ -76,7 +76,7 @@ export async function tryToUpdateGameState(newGameState: GameState){
 	const objectId = new ObjectId(hashedId.slice(0, 24));
 
 	// console.log("object id " + objectId)
-	console.log(newGameState)
+	// console.log(newGameState)
 	const result = await gamesCollection.updateOne(
 		
 		{ _id: objectId},

@@ -1,6 +1,6 @@
 import http from "http"
 import { Server } from "socket.io"
-import { Card, GameState, PlayerId, RoomId, createEmptyGame, CardId } from "./model"
+import { Card, GameState, PlayerId, RoomId, createEmptyGame, CardId, getCardAmt } from "./model"
 import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState, getGameState} from "./mongo"
 
 async function main() {
@@ -32,8 +32,8 @@ io.on("connection", function(socket){
     
     socket.on("create-room", (roomId: RoomId)=>{
         socket.join(roomId);
-        console.log("room " + roomId + "created by player")
-        console.log("socket id is " + socket.id)
+        // console.log("room " + roomId + "created by player")
+        // console.log("socket id is " + socket.id)
     })
 
     socket.on("join-room", (roomId: RoomId, playerId: PlayerId)=>{
@@ -44,8 +44,8 @@ io.on("connection", function(socket){
         else {
             waitingPlayers[roomId] = [playerId]
         }
-        console.log("room " + roomId + " joined by player " + playerId)
-        console.log("socket id is " + socket.id)
+        // console.log("room " + roomId + " joined by player " + playerId)
+        // console.log("socket id is " + socket.id)
         // console.log(waitingPlayers[roomId])
         io.emit("player-joined", roomId, waitingPlayers[roomId])
     })
@@ -62,19 +62,33 @@ io.on("connection", function(socket){
     
         const gameState: GameState = createEmptyGame(waitingPlayers[roomId], roomId, cardIds)
         await tryToUpdateGameState(gameState)
-        io.emit("game-started")
+        io.emit("game-started", roomId)
     })
     
     socket.on("get-new-game-state", async (roomId) => {
-        const gameState = await getGameState(roomId)
-        const cards = await getCards() 
-        console.log(cards[0])
-        socket.emit("new-game-state", gameState, cards)
+        const cards = await getCards()
+        const cardIds: CardId[] = cards.map((x:Card) => x._id) 
+        const gameState: GameState = createEmptyGame(waitingPlayers[roomId], roomId, cardIds)        
+
+        // console.log(cards[0])
+        socket.emit("new-game-state", gameState, cards, roomId)
     })
 
     socket.on("update-game", async (gameState) => {
         await tryToUpdateGameState(gameState)
-        io.emit("game-state", gameState)
+        io.emit("game-state", gameState, gameState.roomId)
+    })
+
+    socket.on("change-phase", (gameState) => {
+        if (gameState.phase == "preflop") {
+            console.log("changing to flop")
+            const newPhase = "flop"
+            const flop = getCardAmt(gameState.deckCards, 3)
+            const newGameState = {...gameState, phase: newPhase, communityCards: flop}
+            console.log(newGameState)
+            io.emit("game-state", newGameState, newGameState.roomId)
+        }
+
     })
 
   })

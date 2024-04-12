@@ -41,8 +41,10 @@ const props = withDefaults(defineProps<Props>(), {
     playerId: ""
 })
 
-socket.on("game-started", () => {
-    router.push(`/game/${props.roomId}/${props.playerId}`)
+socket.on("game-started", (roomId) => {
+    if (roomId == props.roomId){
+        router.push(`/game/${props.roomId}/${props.playerId}`)
+    }
 })
 
 function startGame() {
