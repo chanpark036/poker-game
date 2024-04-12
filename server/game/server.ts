@@ -72,11 +72,9 @@ io.on("connection", function(socket){
         socket.emit("new-game-state", gameState, cards)
     })
 
-    socket.on("update-bets", async (newBets, gameState) => {
-        const updatedGameState = { ...gameState, betsThisPhase: newBets }
-        await tryToUpdateGameState(updatedGameState)
-        const cards = await getCards()
-        socket.emit("game-state", gameState, cards)
+    socket.on("update-game", async (gameState) => {
+        await tryToUpdateGameState(gameState)
+        socket.emit("game-state", gameState)
     })
 
   })

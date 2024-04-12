@@ -64,7 +64,7 @@ export async function getGameState(gameStateId: RoomId) {
 	const objectId = new ObjectId(hashedId.slice(0, 24));
 
 
-	return await gamesCollection.findOne({ _id: objectId }) as unknown as MongoGameState
+	return await gamesCollection.findOne({ roomId: gameStateId }) as unknown as MongoGameState
 }
 
 
@@ -75,13 +75,15 @@ export async function tryToUpdateGameState(newGameState: GameState){
 	const hashedId = createHash('sha256').update(newGameState.roomId).digest('hex')
 	const objectId = new ObjectId(hashedId.slice(0, 24));
 
+	console.log("object id " + objectId)
 	// console.log("abt to try to update database")
 
+	
 	const result = await gamesCollection.replaceOne(
-		// { _id: newGameState.roomId},
-		// { _id: newGameState.roomId, ...newGameState},
-		{ _id: objectId},
-		{ _id: objectId, ...newGameState},
+		
+		{ roomId: newGameState.roomId},
+		{...newGameState },
+		
 		{
 			upsert: true
 		}

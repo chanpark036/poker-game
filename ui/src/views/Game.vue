@@ -26,6 +26,7 @@
         :myTotal = "playerStacks[playerId]"
         :myBet = "betsThisPhase[playerId]"
         :highestBet = "highestBet"
+        @action = "doAction"
       />
     </div>
     
@@ -50,7 +51,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref } from 'vue'
 import { io } from "socket.io-client"
-import { Card, CardId, PlayerId } from "../../../server/game/model"
+import { Card, CardId, GameState, PlayerId } from "../../../server/game/model"
 import CardRun from "../components/CardRun.vue"
 import PlayerHand from "../components/PlayerHand.vue"
 
@@ -74,7 +75,21 @@ onMounted(() => {
 const socket = io()
 
 // All of our state
-const gameState = ref({})
+const defaultGameState: GameState = {
+  playerIds: [],
+  cardsByPlayer: {},
+  currentTurnPlayerIndex: 0,
+  phase: "preflop",
+  roomId: "",
+  playersStillIn: [],
+  betsThisPhase: {},
+  potAmount: 0,
+  smallBlindIndex: 0,
+  communityCards: [],
+  deckCards: [],
+  playerStacks: {}
+}
+const gameState: Ref<GameState> = ref(defaultGameState)
 const cards: Ref<Card[]> = ref([])
 const currentTurnPlayerIndex = ref()
 const playerIds: Ref<PlayerId[]> = ref([])
@@ -101,24 +116,22 @@ const bigBlindPlayerId: Ref<PlayerId> = computed(() => {
   }
 })
 
-function updateBets(newBets: Record<PlayerId, number>) {
-  socket.emit("update-bets", gameState, newBets)
-}
 
 
-socket.on("new-game-state", (gameState, cards) => {
-  gameState.value = gameState
 
-  playerIds.value = gameState.playerIds
-  currentTurnPlayerIndex.value = gameState.currentTurnPlayerIndex
-  myCards.value = gameState.cardsByPlayer[props.playerId].map((cardId: CardId) => cards.find((card: Card) => card._id === cardId))
-  gamePhase.value = gameState.phase
-  playerStacks.value = gameState.playerStacks
-  smallBlindIndex.value = gameState.smallBlindIndex
-  potAmount.value = gameState.potAmount
+socket.on("new-game-state", (newGameState: GameState, cards) => {
+  gameState.value = newGameState
+
+  playerIds.value = newGameState.playerIds
+  currentTurnPlayerIndex.value = newGameState.currentTurnPlayerIndex
+  myCards.value = newGameState.cardsByPlayer[props.playerId].map((cardId: CardId) => cards.find((card: Card) => card._id === cardId))
+  gamePhase.value = newGameState.phase
+  playerStacks.value = newGameState.playerStacks
+  smallBlindIndex.value = newGameState.smallBlindIndex
+  potAmount.value = newGameState.potAmount
 
 
-  betsThisPhase.value = gameState.betsThisPhase
+  betsThisPhase.value = newGameState.betsThisPhase
 
   betsThisPhase.value[smallBlindPlayerId.value] = 10
   betsThisPhase.value[bigBlindPlayerId.value] = 20
@@ -127,12 +140,69 @@ socket.on("new-game-state", (gameState, cards) => {
 
   currentTurnPlayerIndex.value = (smallBlindIndex.value + 2) % playerIds.value.length
 
+
+
+  // const updatedGameState: GameState = { ...gameState.value, 
+  //                           betsThisPhase: betsThisPhase.value, 
+  //                           playerStacks: playerStacks.value, 
+  //                           currentTurnPlayerIndex: currentTurnPlayerIndex.value }
+  // updateGameState(updatedGameState)
+
+})
+
+
+socket.on("game-state", (gameState) => {
+  gameState.value = gameState
+
+  playerIds.value = gameState.playerIds
+  currentTurnPlayerIndex.value = gameState.currentTurnPlayerIndex
+  myCards.value = gameState.cardsByPlayer[props.playerId].map((cardId: CardId) => cards.value.find((card: Card) => card._id === cardId))
+  gamePhase.value = gameState.phase
+  playerStacks.value = gameState.playerStacks
+  smallBlindIndex.value = gameState.smallBlindIndex
+  potAmount.value = gameState.potAmount
+
+
+  betsThisPhase.value = gameState.betsThisPhase
 })
 
 
 function newGame() {
   socket.emit('start-game', props.roomId)
   socket.emit('get-new-game-state', props.roomId)
+}
+
+function updateGameState(gameState: GameState) {
+  socket.emit("update-game", gameState)
+}
+
+function doAction(actionType: string, amount: number) {
+  if (actionType == "check") {
+    currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playerIds.value.length
+    const updatedGameState: GameState = {...gameState.value, currentTurnPlayerIndex: currentTurnPlayerIndex.value}
+    updateGameState(updatedGameState)
+  }
   
+  if (actionType == "call") {
+    currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playerIds.value.length
+    betsThisPhase.value[props.playerId] += amount
+    playerStacks.value[props.playerId] -= amount
+    potAmount.value += amount
+    const updatedGameState: GameState = {...gameState.value, 
+                                        currentTurnPlayerIndex: currentTurnPlayerIndex.value,
+                                        betsThisPhase: betsThisPhase.value,
+                                        playerStacks: playerStacks.value,
+                                        potAmount: potAmount.value 
+                      }
+    updateGameState(updatedGameState)
+  }
+
+  if (actionType == "raise") {
+
+  }
+
+  if (actionType == "fold") {
+
+  }
 }
 </script>
