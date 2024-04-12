@@ -1,15 +1,19 @@
 <template>
+    <p>My bet: {{ myBet }}</p>
+    <p>Highest Bet: {{ highestBet }}</p>
+
     <div class="playerCards">
         <div class="card-space">{{ myCards[0] }}</div>
         <div class="card-space">{{ myCards[1] }}</div>
     </div>
     <div v-if="myTurn">
-        <button >Check/Call</button>
+        <button @click="$emit('action', 'check', 0)" v-if="myBet === highestBet">Check</button>
+        <button @click="$emit('action', 'call', highestBet-myBet)" v-else>Call for ${{ highestBet - myBet }}</button>
         <span>
-            <input type="number" placeholder="Enter amount to raise">
-            <button>Raise</button>
+            <input type="number" v-model="raiseAmount" placeholder="Enter amount to raise">
+            <button @click="$emit('action', 'raise', raiseAmount)">Raise</button>
         </span>
-        <button>Fold</button>
+        <button @click = "$emit('action', 'fold', 0)">Fold</button>
     </div>
     <p>You have ${{ myTotal }}</p>
 
@@ -49,7 +53,8 @@ import { Card, PlayerId } from '../../../server/game/model';
         currentTurnPlayerId?: string
         myCards?: Card[]
         myTotal?: number
-        betsThisPhase?: Record<PlayerId, number>
+        myBet?: number
+        highestBet?: number
     }
 
     // default values for props
@@ -57,18 +62,12 @@ import { Card, PlayerId } from '../../../server/game/model';
         myId: "all",
         currentTurnPlayerIndex: -1,
         myTotal: 0,
+        myBet: 0,
+        highestBet: 0
     })
 
     const myTurn = computed(() => props.myId == props.currentTurnPlayerId)
-    const betAmount = ref()
-    const highestBetThisPhase: Ref<number> = computed(() => {
-        if (!props.betsThisPhase) {
-            return 0
-        }
-        const values = Object.values(props.betsThisPhase);
-        return Math.max(...values);
-    }
+    const raiseAmount = ref(0)
     // if betAmt = highestBet, show check button, else, show call and when clicked, betAmt = highestBet
-
 
 </script>

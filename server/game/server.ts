@@ -65,15 +65,16 @@ io.on("connection", function(socket){
         io.emit("game-started")
     })
     
-    socket.on("get-game-state", async (roomId) => {
+    socket.on("get-new-game-state", async (roomId) => {
         const gameState = await getGameState(roomId)
         const cards = await getCards() 
         console.log(cards[0])
-        socket.emit("game-state", gameState, cards)
+        socket.emit("new-game-state", gameState, cards)
     })
 
-    socket.on("update-bets", async (gameState) => {
-        await tryToUpdateGameState(gameState)
+    socket.on("update-bets", async (newBets, gameState) => {
+        const updatedGameState = { ...gameState, betsThisPhase: newBets }
+        await tryToUpdateGameState(updatedGameState)
         const cards = await getCards()
         socket.emit("game-state", gameState, cards)
     })
