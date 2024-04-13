@@ -34,22 +34,25 @@ export interface Room{
 export type GamePhase = "preflop" | "flop" | "turn" | "river" | "game-over"
 
 export interface GameState {
-  playerIds: PlayerId[]
-  cardsByPlayer: Record<PlayerId,CardId[]>,
-  currentTurnPlayerIndex: number
-  phase: GamePhase
+  playerIds: PlayerId[] 
+  cardsByPlayer: Record<PlayerId,CardId[]>, //
+  currentTurnPlayerIndex: number //
+  phase: GamePhase //
   roomId: RoomId
-  playersStillIn: PlayerId[]
-  betsThisPhase: Record<PlayerId, number>
-  potAmount: number
-  smallBlindIndex: number
-  communityCards: CardId[]
-  deckCards: CardId[]
-  playerStacks: Record<PlayerId, number>
+  playersStillIn: PlayerId[] //
+  betsThisPhase: Record<PlayerId, number> //
+  potAmount: number //
+  smallBlindIndex: number //
+  communityCards: CardId[] //
+  deckCards: CardId[] //
+  playerStacks: Record<PlayerId, number> //
+  lastPlayerTurnIndex: number //
+  playerHandStatuses: Record<PlayerId, string> //
 }
 
 export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId, cardIds: CardId[]): GameState {
   const playerStacks = {}
+  // console.log(playerIds)
   for(const playerId of playerIds){
     fillPlayerStack(playerId,playerStacks)
   }
@@ -68,11 +71,14 @@ export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId, cardIds: 
     smallBlindIndex: 0,
     communityCards: [],
     deckCards: cardIds,
-    playerStacks: playerStacks
+    playerStacks: playerStacks,
+    lastPlayerTurnIndex: 0,
+    playerHandStatuses: {}
   }
 }
 
-function dealCards(playerIds: PlayerId[], cards: CardId[]){
+
+export function dealCards(playerIds: PlayerId[], cards: CardId[]): Record<string, string[]>{
   const cardsByPlayer: Record<PlayerId,CardId[]> = {}
   //shuffle cards
   for (let i = cards.length - 1; i > 0; i--) {
@@ -88,6 +94,16 @@ function dealCards(playerIds: PlayerId[], cards: CardId[]){
   return cardsByPlayer
 }
 
+export function getCardAmt(cards: CardId[], num: number) {
+  const cardies: CardId[] = []
+
+  for (let i = 0; i < num; i++) {
+    cardies.push(cards.pop())
+  }
+  return cardies
+}
+
+
 function fillPlayerStack(playerId: PlayerId, currentPlayerStacks: Record<PlayerId, number>, amount: number = 500){
   //api call dealing with subtracting amount from player profile
   if(playerId in currentPlayerStacks){
@@ -97,3 +113,426 @@ function fillPlayerStack(playerId: PlayerId, currentPlayerStacks: Record<PlayerI
     currentPlayerStacks[playerId] = amount
   }
 }
+
+
+export function determineHands({cardsByPlayer, communityCards}:GameState, cards: Card[]): Record<PlayerId, string> {
+
+  const playerStatuses: Record<PlayerId, string> = {}
+
+  for (const player in cardsByPlayer) {
+    const combinedHandIds = cardsByPlayer[player].concat(communityCards)
+    const combinedHand = combinedHandIds.map(cardId => toCard(cardId, cards))
+
+    // console.log(combinedHand)
+    if (isRoyalFlush(combinedHand)) {
+      playerStatuses[player] = "royal-flush";
+    }
+    else if (isStraightFlush(combinedHand)) {
+      playerStatuses[player] = "straight-flush";
+    }
+    else if (isQuads(combinedHand)) {
+      playerStatuses[player] = "quads";
+    }
+    else if (isFullHouse(combinedHand)) {
+      playerStatuses[player] = "full-house";
+    }
+    else if (isFlush(combinedHand)) {
+      playerStatuses[player] = "flush";
+    }
+    else if (isStraight(combinedHand)) {
+      playerStatuses[player] = "straight";
+    }
+    else if (hasThreeOfAKind(combinedHand)) {
+      playerStatuses[player] = "trips";
+    }
+    else if (hasTwoPairs(combinedHand)) {
+      playerStatuses[player] = "two-pair";
+    }
+    else if (hasPair(combinedHand)) {
+      playerStatuses[player] = "pair";
+    }
+    else {
+      playerStatuses[player] = "high-card"
+    }
+
+  }
+  return playerStatuses
+}
+
+export function determineWinner({cardsByPlayer, communityCards, playerHandStatuses, playersStillIn}:GameState, cards: Card[]): PlayerId[] {
+
+  const handRankingOrder = [
+    "royal-flush",
+    "straight-flush",
+    "quads",
+    "full-house",
+    "flush",
+    "straight",
+    "trips",
+    "two-pair",
+    "pair",
+    "high-card"
+  ];
+ 
+  let winningPlayerIds: PlayerId[] = []
+  let bestHandRanking: string | null = null
+  for (const playerId in playerHandStatuses) {
+    if (!playersStillIn.includes(playerId)) {
+      continue
+    }
+
+    const playerStatus = playerHandStatuses[playerId]
+    
+    if (winningPlayerIds.length == 0 || !bestHandRanking) {
+      winningPlayerIds = [playerId]
+      bestHandRanking = playerStatus
+      continue
+    }
+
+    const currentPlayerIndex = handRankingOrder.indexOf(playerStatus);
+    const winningPlayerIndex = handRankingOrder.indexOf(bestHandRanking);
+
+    if (currentPlayerIndex < winningPlayerIndex) {
+      winningPlayerIds = []
+      winningPlayerIds.push(playerId)
+      bestHandRanking = playerStatus
+    }
+
+    else if (currentPlayerIndex === winningPlayerIndex) {
+      let playerHighest: number = 0
+      let winningHighest: number = 0
+      switch (handRankingOrder[currentPlayerIndex]) {
+        case "royal-flush":
+          winningPlayerIds.push(playerId);
+          break;
+        case "straight-flush":
+          playerHighest = flushHighest(cardsByPlayer[playerId].concat(communityCards), cards);
+          winningHighest = flushHighest(cardsByPlayer[winningPlayerIds[0]].concat(communityCards), cards)
+          if (winningHighest === playerHighest) {
+            winningPlayerIds.push(playerId)
+          }
+          else if (winningHighest < playerHighest){
+            winningPlayerIds = [playerId]
+          }
+          break;
+        case "quads":
+          playerHighest = quadHighest(cardsByPlayer[playerId].concat(communityCards), cards);
+          winningHighest = quadHighest(cardsByPlayer[winningPlayerIds[0]].concat(communityCards), cards)
+          if (winningHighest === playerHighest) {
+            winningPlayerIds.push(playerId)
+          }
+          else if (winningHighest < playerHighest){
+            winningPlayerIds = [playerId]
+          }
+          break;
+        case "full-house":
+          playerHighest = tripsHighest(cardsByPlayer[playerId].concat(communityCards), cards);
+          winningHighest = tripsHighest(cardsByPlayer[winningPlayerIds[0]].concat(communityCards), cards)
+          if (winningHighest === playerHighest) {
+            winningPlayerIds.push(playerId)
+          }
+          else if (winningHighest < playerHighest){
+            winningPlayerIds = [playerId]
+          }
+          break;
+        case "flush":
+          playerHighest = flushHighest(cardsByPlayer[playerId].concat(communityCards), cards);
+          winningHighest = flushHighest(cardsByPlayer[winningPlayerIds[0]].concat(communityCards), cards)
+          if (winningHighest === playerHighest) {
+            winningPlayerIds.push(playerId)
+          }
+          else if (winningHighest < playerHighest){
+            winningPlayerIds = [playerId]
+          }
+          break;
+        case "straight":
+          playerHighest = straightHighest(cardsByPlayer[playerId].concat(communityCards), cards);
+          winningHighest = straightHighest(cardsByPlayer[winningPlayerIds[0]].concat(communityCards), cards)
+          if (winningHighest === playerHighest) {
+            winningPlayerIds.push(playerId)
+          }
+          else if (winningHighest < playerHighest){
+            winningPlayerIds = [playerId]
+          }
+          break;
+        case "trips":
+          playerHighest = tripsHighest(cardsByPlayer[playerId].concat(communityCards), cards);
+          winningHighest = tripsHighest(cardsByPlayer[winningPlayerIds[0]].concat(communityCards), cards);
+          if (winningHighest < playerHighest) {
+            winningPlayerIds = [playerId]
+          }
+          else if (winningHighest === playerHighest) {
+            // for now i am just splitting, but we should really be mindful of kickers
+            winningPlayerIds.push(playerId)
+          }
+          break;
+        case "two-pair":
+          playerHighest = pairHighest(cardsByPlayer[playerId].concat(communityCards), cards);
+          winningHighest = pairHighest(cardsByPlayer[winningPlayerIds[0]].concat(communityCards), cards);
+          if (winningHighest < playerHighest) {
+            winningPlayerIds = [playerId]
+          }
+          else if (winningHighest === playerHighest) {
+            // for now i am just splitting, but we should really be mindful of kickers
+            winningPlayerIds.push(playerId)
+          }
+          break;
+        case "pair":
+          playerHighest = pairHighest(cardsByPlayer[playerId].concat(communityCards), cards);
+          winningHighest = pairHighest(cardsByPlayer[winningPlayerIds[0]].concat(communityCards), cards);
+          if (winningHighest < playerHighest) {
+            winningPlayerIds = [playerId]
+          }
+          else if (winningHighest === playerHighest) {
+            // for now i am just splitting, but we should really be mindful of kickers
+            winningPlayerIds.push(playerId)
+          }          
+          break;
+        case "high-card":
+          playerHighest = highestCard(cardsByPlayer[playerId].concat(communityCards), cards);
+          winningHighest = highestCard(cardsByPlayer[winningPlayerIds[0]].concat(communityCards), cards);
+          if (winningHighest < playerHighest) {
+            winningPlayerIds = [playerId]
+          }
+          else if (winningHighest === playerHighest) {
+            // for now i am just splitting, but we should really be mindful of kickers
+            winningPlayerIds.push(playerId)
+          }
+
+      }
+
+    }
+
+    
+
+  }
+  return winningPlayerIds
+
+  
+
+
+
+}
+
+function countCardValues(hand: Card[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const card of hand) {
+    counts[card.rank] = (counts[card.rank] || 0) + 1;
+  }
+  return counts;
+}
+
+
+
+const rankOrder = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+function isRoyalFlush(hand: Card[]): boolean {
+  const flushSuit = hand[0].suit;
+  const royalRanks = ['10', 'J', 'Q', 'K', 'A'];
+  const royalFlushHand = royalRanks.map(rank => ({ rank, suit: flushSuit }));
+  return hand.every(card => royalFlushHand.some(royalCard => card.suit === royalCard.suit && card.rank === royalCard.rank));
+}
+
+function isStraightFlush(hand: Card[]): boolean {
+  const straightFlushSuit = hand[0].suit;
+  const straightHand = hand.sort((a, b) => {
+    return rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank);
+  });
+
+  for (let i = 0; i < straightHand.length - 4; i++) {
+    let isStraightFlush = true;
+    for (let j = i; j < i + 4; j++) {
+      if (straightHand[j].suit !== straightFlushSuit || rankOrder.indexOf(straightHand[j].rank) + 1 !== rankOrder.indexOf(straightHand[j + 1].rank)) {
+        isStraightFlush = false;
+        break;
+      }
+    }
+    if (isStraightFlush) return true;
+  }
+  return false;
+}
+
+
+function isQuads(hand: Card[]): boolean {
+  const counts = countCardValues(hand);
+  return Object.values(counts).includes(4);
+}
+
+
+function isFullHouse(hand: Card[]): boolean {
+  const counts = countCardValues(hand);
+  return Object.values(counts).includes(3) && Object.values(counts).includes(2);
+}
+
+function isFlush(hand: Card[]): boolean {
+  const uniqueSuits = new Set(hand.map(card => card.suit));
+  return uniqueSuits.size === 1;
+}
+
+function isStraight(hand: Card[]): boolean {
+  const straightHand = hand.sort((a, b) => {
+    return rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank);
+  });
+
+  for (let i = 0; i < straightHand.length - 4; i++) {
+    let isStraight = true;
+    for (let j = i; j < i + 4; j++) {
+      if (rankOrder.indexOf(straightHand[j].rank) + 1 !== rankOrder.indexOf(straightHand[j + 1].rank)) {
+        isStraight = false;
+        break;
+      }
+    }
+    if (isStraight) return true;
+  }
+  return false;
+}
+
+function hasThreeOfAKind(hand: Card[]): boolean {
+  const counts = countCardValues(hand);
+  return Object.values(counts).includes(3);
+}
+
+function hasTwoPairs(hand: Card[]): boolean {
+  const counts = countCardValues(hand);
+  let pairCount = 0;
+  for (const count of Object.values(counts)) {
+    if (count === 2) {
+      pairCount++;
+    }
+  }
+  return pairCount === 2;
+}
+
+function hasPair(hand: Card[]): boolean {
+  const counts = countCardValues(hand);
+  return Object.values(counts).includes(2);
+}
+
+
+function toCard(card: string, deckCards: Card[]): Card{
+  return deckCards.find(c => c._id === card)
+}
+
+function flushHighest(cardIds: string[], cards: Card[]): number {
+  const suitCounts: Record<string, number> = {};
+  for (const cardId of cardIds) {
+    const card = cards.find(card => card._id === cardId);
+    if (card) {
+      suitCounts[card.suit] = (suitCounts[card.suit] || 0) + 1;
+    }
+  }
+  let flushSuit: string | null = null;
+  for (const suit in suitCounts) {
+    if (suitCounts[suit] >= 5) {
+      flushSuit = suit;
+      break;
+    }
+  }
+  const flushCards = cards.filter(card => cardIds.includes(card._id) && card.suit === flushSuit);
+  flushCards.sort((a, b) => b.rank.localeCompare(a.rank));
+  return toNumber(flushCards[0].rank);
+}
+
+function quadHighest(cardIds: string[], cards: Card[]): number {
+  const rankCounts: Record<string, number> = {};
+  for (const cardId of cardIds) {
+    const card = cards.find(card => card._id === cardId);
+    if (card) {
+      rankCounts[card.rank] = (rankCounts[card.rank] || 0) + 1;
+    }
+  }
+  let quadRank = null;
+  for (const rank in rankCounts) {
+    if (rankCounts[rank] === 4) {
+      quadRank = rank;
+      break;
+    }
+  }
+  return toNumber(quadRank);
+
+}
+
+
+function straightHighest(cardIds: string[], cards: Card[]): number {
+  const straightCards = cardIds.map(cardId => cards.find(card => card._id === cardId));
+  straightCards.sort((a, b) => {
+    const rankOrder = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
+    return rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank);
+  });
+  return toNumber(straightCards[straightCards.length - 1].rank);
+}
+
+function tripsHighest(cardIds: string[], cards: Card[]): number {
+  const rankCounts: Record<string, number> = {};
+  for (const cardId of cardIds) {
+    const card = cards.find(card => card._id === cardId);
+    if (card) {
+      rankCounts[card.rank] = (rankCounts[card.rank] || 0) + 1;
+    }
+  }
+
+  let tripsRank = null;
+  for (const rank in rankCounts) {
+    if (rankCounts[rank] === 3) {
+      tripsRank = rank;
+      break;
+    }
+  }
+  return toNumber(tripsRank);
+}
+
+function pairHighest(cardIds: string[], cards: Card[]): number {
+  const rankCounts: Record<string, number> = {};
+  for (const cardId of cardIds) {
+    const card = cards.find(card => card._id === cardId);
+    if (card) {
+      rankCounts[card.rank] = (rankCounts[card.rank] || 0) + 1;
+    }
+  }
+
+  let highestRank = 0
+  for (const rank in rankCounts) {
+    if (rankCounts[rank] === 2 && toNumber(rank) > highestRank) {
+      highestRank = toNumber(rank)
+    }
+  }
+  return highestRank;
+}
+
+function highestCard(cardIds: string[], cards: Card[]): number {
+  const rankCounts: Record<string, number> = {};
+  for (const cardId of cardIds) {
+    const card = cards.find(card => card._id === cardId);
+    if (card) {
+      rankCounts[card.rank] = (rankCounts[card.rank] || 0) + 1;
+    }
+  }
+
+  let highestRank = 0
+  for (const rank in rankCounts) {
+    if (rankCounts[rank] === 1 && toNumber(rank) > highestRank) {
+      highestRank = toNumber(rank)
+    }
+  }
+  return highestRank
+}
+
+function toNumber(rank: string): number {
+  if (rank == "A") {
+    return 14
+  }
+  else if (rank == "K") {
+    return 13
+  }
+  else if (rank == "Q") {
+    return 12
+  }
+  else if (rank == "J") {
+    return 11
+  }
+  else {
+    return Number(rank)
+  }
+}
+
+
