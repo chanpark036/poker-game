@@ -141,7 +141,7 @@ app.post("/api/profileInfo/uploadPicture", upload.single('file'), checkAuthentic
     res.redirect('/profile');
 })
 
-app.delete("/api/profileInfo/deletePicture", checkAuthenticated, checkRole(["player"]), async (req, res) => {
+app.delete("/api/profileInfo/deletePicture", checkAuthenticated, checkRole(["player"]), async (req, res, next) => {
     const id = req.user.preferred_username
     try{
         const profilePicFile = await profilePicFiles.findOne({ filename: id+".png"})
@@ -152,7 +152,7 @@ app.delete("/api/profileInfo/deletePicture", checkAuthenticated, checkRole(["pla
             res.status(200).json({ message: 'successful'})
         }
         else{
-            res.status(300).json({ error: 'No image found' });
+            res.status(304).json({ error: 'No image found' });
         }
         // const profilePicFile = await profilePicFiles.findOneAndDelete({ filename: _id+".png"},{projection: {_id:1},includeResultMetadata:false})
         // const chunkId = profilePicFile
@@ -162,7 +162,7 @@ app.delete("/api/profileInfo/deletePicture", checkAuthenticated, checkRole(["pla
         console.log(e);
         res.status(500).json({ error: 'Server Errored' });
     }
-    res.redirect('/profile');
+
 })
 
 
