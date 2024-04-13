@@ -9,6 +9,7 @@
     <p>Small Blind: {{ smallBlindPlayerId }}</p>
     <p>Pot: {{ potAmount }}</p>
     <p>My Hand : {{ playerHandStatuses[playerId] }}</p>
+    <p>Last Player Index: {{ lastPlayerTurnIndex }}</p>
     <ul>
       <li v-for="player in playersStillIn">{{ player }}</li>
     </ul>
@@ -110,6 +111,8 @@ const communityCards: Ref<Card[]> = ref([])
 const lastPlayerTurnIndex = ref()
 const playerHandStatuses: Ref<Record<PlayerId, string>> = ref({})
 
+const winners: Ref<PlayerId[]> = ref([])
+
 const currentTurnPlayerId = computed(() => playerIds.value[currentTurnPlayerIndex.value] )
 const highestBet = computed(() => {
         const values: number[] = Object.values(betsThisPhase.value);
@@ -127,7 +130,9 @@ const bigBlindPlayerId: Ref<PlayerId> = computed(() => {
 })
 
 
-
+socket.on("winners", (winnersList) => {
+  winners.value = winnersList
+})
 
 socket.on("new-game-state", (newGameState: GameState, cards, roomId) => {
   if (props.roomId == roomId) {
@@ -143,8 +148,10 @@ socket.on("new-game-state", (newGameState: GameState, cards, roomId) => {
     playerStacks.value = newGameState.playerStacks
     smallBlindIndex.value = newGameState.smallBlindIndex
     potAmount.value = newGameState.potAmount
-    playersStillIn.value = newGameState.playersStillIn
+    playersStillIn.value = newGameState.playerIds
     communityCards.value = []
+    
+    playerHandStatuses.value = newGameState.playerHandStatuses
 
     deckCards.value = cards
 
@@ -165,13 +172,15 @@ socket.on("new-game-state", (newGameState: GameState, cards, roomId) => {
 
 
 
-    const updatedGameState: GameState = { ...gameState.value, 
-                              betsThisPhase: betsThisPhase.value, 
-                              playerStacks: playerStacks.value, 
-                              currentTurnPlayerIndex: currentTurnPlayerIndex.value,
-                              potAmount: potAmount.value,
-                              lastPlayerTurnIndex: lastPlayerTurnIndex.value
-                            }
+    const updatedGameState: GameState = { 
+      ...gameState.value, 
+      betsThisPhase: betsThisPhase.value, 
+      playerStacks: playerStacks.value, 
+      currentTurnPlayerIndex: currentTurnPlayerIndex.value,
+      potAmount: potAmount.value,
+      lastPlayerTurnIndex: lastPlayerTurnIndex.value,
+      playersStillIn: playersStillIn.value
+    }
     updateGameState(updatedGameState)
   }
 
@@ -214,6 +223,7 @@ function doAction(actionType: string, amount: number) {
   if (actionType == "check") {
 
     if (props.playerId == playerIds.value[lastPlayerTurnIndex.value]) {
+      console.log("THIS SHOULD FIRE TWICE")
       currentTurnPlayerIndex.value = smallBlindIndex.value
       while (playersStillIn.value[currentTurnPlayerIndex.value] == "") {
         currentTurnPlayerIndex.value = (currentTurnPlayerIndex.value + 1)%playersStillIn.value.length

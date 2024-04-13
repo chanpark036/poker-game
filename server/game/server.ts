@@ -1,6 +1,6 @@
 import http from "http"
 import { Server } from "socket.io"
-import { Card, GameState, PlayerId, RoomId, createEmptyGame, CardId, getCardAmt, determineHands } from "./model"
+import { Card, GameState, PlayerId, RoomId, createEmptyGame, CardId, getCardAmt, determineHands, determineWinner, dealCards } from "./model"
 import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState, getGameState} from "./mongo"
 
 async function main() {
@@ -16,17 +16,7 @@ const io = new Server(server, { adapter })
 // io.adapter(adapter);
 const port = parseInt(process.env.SERVER_PORT || "8101")
 
-// io.on('connection', client => {
-//     function emitGameState() {
-//       client.emit(
-//         "game-state", 
-//         gameState.currentTurnPlayerIndex,
-//         gameState.phase,
-//         gameState.playCount,
-//       )
-//     }
-    
-//     console.log("New client")
+
 const waitingPlayers: Record<RoomId, PlayerId[]> = {}
 io.on("connection", function(socket){
     
@@ -100,7 +90,7 @@ io.on("connection", function(socket){
         }
 
         if (gameState.phase == "flop") {
-            console.log("changing to turn")
+            // console.log("changing to turn")
             const newPhase = "turn"
             const turn = getCardAmt(gameState.deckCards, 1)
             let newGameState = {...gameState, phase: newPhase, communityCards: gameState.communityCards.concat(turn)}
@@ -112,7 +102,7 @@ io.on("connection", function(socket){
         }
 
         if (gameState.phase == "turn") {
-            console.log("changing to flop")
+            // console.log("changing to flop")
             const newPhase = "river"
             const river= getCardAmt(gameState.deckCards, 1)
             let newGameState = {...gameState, phase: newPhase, communityCards: gameState.communityCards.concat(river)}
@@ -123,14 +113,41 @@ io.on("connection", function(socket){
         }
 
         if (gameState.phase == "river") {
-            console.log("determine a winner")
+            // console.log("determine a winner")
 
-            // determineWinner(gameState)
+            const winnerList: PlayerId[] = determineWinner(gameState, cards)
+            console.log(winnerList)
+            const winningsPerPlayer: number = gameState.potAmount / winnerList.length
+            gameState.potAmount = 0
+            for (let player of winnerList) {
+                // console.log(gameState.playerStacks)
 
-            const newPhase = "game-over"
-            const newGameState = {...gameState, phase: newPhase, currentTurnPlayerIndex: -1 }
+                gameState.playerStacks[player] += winningsPerPlayer
+                // console.log(gameState.playerStacks)
+                // console.log("adding " + winningsPerPlayer + " to " + player)
+            }
 
-            io.emit("game-state", newGameState, newGameState.roomId)
+            const newPhase = "preflop"
+            const newCards = await getCards()
+            const newCardIds: CardId[] = newCards.map((x:Card) => x._id)
+
+            const cardsByPlayer = dealCards(gameState.playerIds, newCardIds)
+
+            const newGameState = {
+                ...gameState,
+                phase: newPhase, 
+                currentTurnPlayerIndex: -1 ,
+                playerStacks: gameState.playerStacks,
+                potAmount: gameState.potAmount,
+                smallBlindIndex: (gameState.smallBlindIndex + 1) % gameState.playerIds.length,
+                cardsByPlayer: cardsByPlayer,
+                deckCards: newCardIds,
+                playerHandStatuses: {},
+                communityCards: []
+            }
+            // console.log(newGameState)
+            io.emit("new-game-state", newGameState, newCards, newGameState.roomId)
+            io.emit("winners", winnerList)
         }
 
     })

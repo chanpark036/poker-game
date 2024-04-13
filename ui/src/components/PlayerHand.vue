@@ -6,7 +6,7 @@
         <div class="card-space" v-if="myCards[0]">{{ myCards[0].rank }} {{ myCards[0].suit }}</div>
         <div calss="cards-space" v-else></div>
         <div class="card-space" v-if="myCards[1]">{{ myCards[1].rank }} {{ myCards[1].suit }}</div>
-        <div calss="cards-space" v-else></div>
+        <div class="cards-space" v-else></div>
 
     </div>
     <div v-if="myTurn && myTotal">
