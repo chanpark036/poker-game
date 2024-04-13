@@ -33,3 +33,7 @@ for game part
 ```bash
 npm run start
 ```
+
+
+
+chan: npm run serve -> HOST=localhost ts-node-dev --respawn site/server.ts

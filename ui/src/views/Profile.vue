@@ -107,7 +107,7 @@ async function save() {
     )
     await saveImage()
     console.log("done saving")
-    // await refresh()
+    await refresh()
 }
 
 async function saveImage() {
