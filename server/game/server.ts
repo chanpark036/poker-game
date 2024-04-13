@@ -86,16 +86,15 @@ io.on("connection", function(socket){
           }
 
         const cards = await getCards()
-        console.log(cards)
-        const playerHandStatuses = determineHands(gameState, cards)
-
-        gameState = {...gameState, playerHandStatuses: playerHandStatuses}
 
         if (gameState.phase == "preflop") {
             console.log("changing to flop")
             const newPhase = "flop"
             const flop = getCardAmt(gameState.deckCards, 3)
-            const newGameState = {...gameState, phase: newPhase, communityCards: flop}
+            let newGameState = {...gameState, phase: newPhase, communityCards: flop}
+
+            const playerHandStatuses = determineHands(newGameState, cards)
+            newGameState = {...newGameState, playerHandStatuses: playerHandStatuses}
             // console.log(newGameState)
             io.emit("game-state", newGameState, newGameState.roomId)
         }
@@ -104,7 +103,10 @@ io.on("connection", function(socket){
             console.log("changing to turn")
             const newPhase = "turn"
             const turn = getCardAmt(gameState.deckCards, 1)
-            const newGameState = {...gameState, phase: newPhase, communityCards: gameState.communityCards.concat(turn)}
+            let newGameState = {...gameState, phase: newPhase, communityCards: gameState.communityCards.concat(turn)}
+
+            const playerHandStatuses = determineHands(newGameState, cards)
+            newGameState = {...newGameState, playerHandStatuses: playerHandStatuses}
             // console.log(newGameState)
             io.emit("game-state", newGameState, newGameState.roomId)
         }
@@ -113,7 +115,9 @@ io.on("connection", function(socket){
             console.log("changing to flop")
             const newPhase = "river"
             const river= getCardAmt(gameState.deckCards, 1)
-            const newGameState = {...gameState, phase: newPhase, communityCards: gameState.communityCards.concat(river)}
+            let newGameState = {...gameState, phase: newPhase, communityCards: gameState.communityCards.concat(river)}
+            const playerHandStatuses = determineHands(newGameState, cards)
+            newGameState = {...newGameState, playerHandStatuses: playerHandStatuses}
             // console.log(newGameState)
             io.emit("game-state", newGameState, newGameState.roomId)
         }
