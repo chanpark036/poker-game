@@ -117,14 +117,16 @@ io.on("connection", function(socket){
 
             const winnerList: PlayerId[] = determineWinner(gameState, cards)
             console.log(winnerList)
-            const winningsPerPlayer: number = gameState.potAmount / winnerList.length
-            gameState.potAmount = 0
-            for (let player of winnerList) {
-                // console.log(gameState.playerStacks)
+            if (typeof(winnerList) == null) {
+                const winningsPerPlayer: number = gameState.potAmount / winnerList.length
+                gameState.potAmount = 0
+                for (let player of winnerList) {
+                    // console.log(gameState.playerStacks)
 
-                gameState.playerStacks[player] += winningsPerPlayer
-                // console.log(gameState.playerStacks)
-                // console.log("adding " + winningsPerPlayer + " to " + player)
+                    gameState.playerStacks[player] += winningsPerPlayer
+                    // console.log(gameState.playerStacks)
+                    // console.log("adding " + winningsPerPlayer + " to " + player)
+                }
             }
 
             const newPhase = "preflop"
