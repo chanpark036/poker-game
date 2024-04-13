@@ -9,6 +9,7 @@ import App from './App.vue'
 import Game from './views/Game.vue'
 import Home from './views/Home.vue'
 import Waiting from './views/Waiting.vue'
+import Profile from './views/Profile.vue'
 
 const routes = [
 	{
@@ -36,6 +37,11 @@ const routes = [
 		path: "/",
 		component: Home,
 	},
+
+	{
+		path: "/profile",
+		component: Profile
+	}
 	
 ]
 
