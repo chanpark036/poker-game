@@ -1,6 +1,6 @@
 import http from "http"
 import { Server } from "socket.io"
-import { Card, GameState, PlayerId, RoomId, createEmptyGame, CardId, getCardAmt } from "./model"
+import { Card, GameState, PlayerId, RoomId, createEmptyGame, CardId, getCardAmt, determineHands } from "./model"
 import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState, getGameState} from "./mongo"
 
 async function main() {
@@ -79,18 +79,24 @@ io.on("connection", function(socket){
         io.emit("game-state", gameState, gameState.roomId)
     })
 
-    socket.on("change-phase", (gameState) => {
+    socket.on("change-phase", async (gameState) => {
 
         for( let player of gameState.playerIds) {
             gameState.betsThisPhase[player] = 0
           }
+
+        const cards = await getCards()
+        console.log(cards)
+        const playerHandStatuses = determineHands(gameState, cards)
+
+        gameState = {...gameState, playerHandStatuses: playerHandStatuses}
 
         if (gameState.phase == "preflop") {
             console.log("changing to flop")
             const newPhase = "flop"
             const flop = getCardAmt(gameState.deckCards, 3)
             const newGameState = {...gameState, phase: newPhase, communityCards: flop}
-            console.log(newGameState)
+            // console.log(newGameState)
             io.emit("game-state", newGameState, newGameState.roomId)
         }
 
@@ -99,7 +105,7 @@ io.on("connection", function(socket){
             const newPhase = "turn"
             const turn = getCardAmt(gameState.deckCards, 1)
             const newGameState = {...gameState, phase: newPhase, communityCards: gameState.communityCards.concat(turn)}
-            console.log(newGameState)
+            // console.log(newGameState)
             io.emit("game-state", newGameState, newGameState.roomId)
         }
 
@@ -108,12 +114,15 @@ io.on("connection", function(socket){
             const newPhase = "river"
             const river= getCardAmt(gameState.deckCards, 1)
             const newGameState = {...gameState, phase: newPhase, communityCards: gameState.communityCards.concat(river)}
-            console.log(newGameState)
+            // console.log(newGameState)
             io.emit("game-state", newGameState, newGameState.roomId)
         }
 
         if (gameState.phase == "river") {
             console.log("determine a winner")
+
+            // determineWinner(gameState)
+
             const newPhase = "game-over"
             const newGameState = {...gameState, phase: newPhase, currentTurnPlayerIndex: -1 }
 

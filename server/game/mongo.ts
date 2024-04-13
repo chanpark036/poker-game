@@ -93,6 +93,8 @@ export async function tryToUpdateGameState(newGameState: GameState){
 			communityCards: newGameState.communityCards,
 			deckCards: newGameState.deckCards,
 			playerStacks: newGameState.playerStacks,
+			lastPlayerTurnIndex: newGameState.lastPlayerTurnIndex,
+			playerHandStatuses: newGameState.playerHandStatuses
 		} },
 		
 		{

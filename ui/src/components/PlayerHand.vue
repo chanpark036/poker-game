@@ -9,7 +9,7 @@
         <div calss="cards-space" v-else></div>
 
     </div>
-    <div v-if="myTurn">
+    <div v-if="myTurn && myTotal">
         <button @click="$emit('action', 'check', 0)" v-if="myBet === highestBet">Check</button>
         <button @click="$emit('action', 'call', highestBet-myBet)" v-else>Call for ${{ highestBet - myBet }}</button>
         <span>
@@ -17,6 +17,9 @@
             <button @click="$emit('action', 'raise', raiseAmount)">Raise</button>
         </span>
         <button @click = "$emit('action', 'fold', 0)">Fold</button>
+    </div>
+    <div v-if="myTurn && myTotal==0">
+        <button @click="$emit('action', 'check', 0)">I'm already All In</button>
     </div>
     <p>You have ${{ myTotal }}</p>
 
@@ -71,6 +74,5 @@ import { Card, PlayerId } from '../../../server/game/model';
 
     const myTurn = computed(() => props.myId == props.currentTurnPlayerId)
     const raiseAmount = ref(0)
-    // if betAmt = highestBet, show check button, else, show call and when clicked, betAmt = highestBet
 
 </script>

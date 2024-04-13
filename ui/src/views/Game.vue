@@ -4,13 +4,11 @@
   <p>My id: {{ playerId }}</p>
 
   <div> 
-    <p>Current Player: {{ currentTurnPlayerId }}</p>
+    
     <p>Current Phase: {{ gamePhase }}</p>
     <p>Small Blind: {{ smallBlindPlayerId }}</p>
-    <p>Small Blind Bet: {{ betsThisPhase[smallBlindPlayerId] }}</p>
-    <p>Big Blind: {{ bigBlindPlayerId }}</p>
     <p>Pot: {{ potAmount }}</p>
-    <p>LastPlayerturnIndex: {{ lastPlayerTurnIndex }}</p>
+    <p>My Hand : {{ playerHandStatuses[playerId] }}</p>
     <ul>
       <li v-for="player in playersStillIn">{{ player }}</li>
     </ul>
@@ -92,7 +90,8 @@ const defaultGameState: GameState = {
   communityCards: [],
   deckCards: [],
   playerStacks: {},
-  lastPlayerTurnIndex: 0
+  lastPlayerTurnIndex: 0,
+  playerHandStatuses: {}
 }
 
 
@@ -109,6 +108,7 @@ const potAmount = ref(0)
 const playersStillIn: Ref<PlayerId[]> = ref([])
 const communityCards: Ref<Card[]> = ref([])
 const lastPlayerTurnIndex = ref()
+const playerHandStatuses: Ref<Record<PlayerId, string>> = ref({})
 
 const currentTurnPlayerId = computed(() => playerIds.value[currentTurnPlayerIndex.value] )
 const highestBet = computed(() => {
@@ -194,7 +194,7 @@ socket.on("game-state", (newGameState, roomId) => {
     communityCards.value = newGameState.communityCards.map((cardId: CardId) => deckCards.value.find((card: Card) => card._id === cardId))
 
     lastPlayerTurnIndex.value = newGameState.lastPlayerTurnIndex
-
+    playerHandStatuses.value = newGameState.playerHandStatuses
 
     betsThisPhase.value = newGameState.betsThisPhase
   }
