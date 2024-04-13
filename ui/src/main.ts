@@ -9,6 +9,7 @@ import App from './App.vue'
 import Game from './views/Game.vue'
 import Home from './views/Home.vue'
 import Waiting from './views/Waiting.vue'
+import Profile from './views/Profile.vue'
 
 const routes = [
 	{
@@ -23,11 +24,12 @@ const routes = [
 	},
 
 	{
-		path: "/game/:roomId",
+		path: "/:roomId/:playerId",
 		component: Waiting,
 		props (route) {
 			return {
-				roomId: route.params.roomId
+				roomId: route.params.roomId,
+				playerId: route.params.playerId
 			}
 		}
 	},
@@ -36,6 +38,11 @@ const routes = [
 		path: "/",
 		component: Home,
 	},
+
+	{
+		path: "/profile",
+		component: Profile
+	}
 	
 ]
 
