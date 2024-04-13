@@ -9,17 +9,29 @@ const storage = new GridFsStorage({
       const match = ["image/png", "image/jpeg"];
   
       if (match.indexOf(file.mimetype) === -1) {
-        const filename = `${Date.now()}-profile-${file.originalname}`;
+        const filename = `${file.originalname}`;
         return filename;
       }
   
       return {
         bucketName: "profilePics",
-        filename: `${Date.now()}-profile-${file.originalname}`
+        filename: `${file.originalname}`
       };
     }
   });
   
-  export const upload = multer({ storage: storage })
+export const upload = multer({ storage: storage, limits: {fileSize: 3000000}})
 // export const upload = util.promisify(multer({ storage: storage }).single("file"))
+
+
+export const dontCache = (req: any, res: any, next: any) => {
+  res.setHeader('Surrogate-Control', 'no-store');
+  res.setHeader(
+    'Cache-Control',
+    'no-store, no-cache, must-revalidate, proxy-revalidate'
+  );
+  res.setHeader('Expires', '0');
+  next();
+};
+
 

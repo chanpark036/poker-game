@@ -11,9 +11,8 @@ import { Strategy as CustomStrategy } from "passport-custom"
 import cors from 'cors'
 import { gitlab } from '../secrets'
 import {Player} from '../game/model'
-import { PlayerProfileInfo } from './data'
-import {upload}from './middleware/upload'
-import multer from 'multer'
+import { PlayerProfileInfo, ProfilePicChunk, ProfilePicFile } from './data'
+import { upload, dontCache}from './middleware/upload'
 
 const HOST = process.env.HOST || "127.0.0.1"
 const GROUP_ID = ""
@@ -25,6 +24,8 @@ const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017'
 const client = new MongoClient(mongoUrl)
 let db: Db
 let players: Collection<Player>
+let profilePicFiles: Collection<ProfilePicFile>
+let profilePicChunks: Collection<ProfilePicChunk>
 
 // set up Express
 const app = express()
@@ -124,19 +125,59 @@ app.get("/api/user", (req, res) => {
     res.json(req.user || {})
   })
 
-app.post("/api/profileInfo/upload", upload.single('file'), checkAuthenticated, async (req, res) => {
-    console.log('reached POST api')
+
+app.post("/api/profileInfo/uploadPicture", upload.single('file'), checkAuthenticated, checkRole(["player"]), async (req, res) => {
     try {
         console.log(req.file);
-    
+        
         if (req.file == null) {
             res.status(500).json({ message: "You must select file"})
         }
-    
+
       } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Internal server error' });
       }
+    res.redirect('/profile');
+})
+
+app.delete("/api/profileInfo/deletePicture", checkAuthenticated, checkRole(["player"]), async (req, res) => {
+    const id = req.user.preferred_username
+    try{
+        const profilePicFile = await profilePicFiles.findOne({ filename: id+".png"})
+        if(profilePicFile){
+            const chunkId = profilePicFile._id
+            await profilePicFiles.deleteOne({filename: id+".png"})
+            await profilePicChunks.deleteOne({files_id: chunkId})
+            res.status(200).json({ message: 'successful'})
+        }
+        else{
+            res.status(300).json({ error: 'No image found' });
+        }
+        // const profilePicFile = await profilePicFiles.findOneAndDelete({ filename: _id+".png"},{projection: {_id:1},includeResultMetadata:false})
+        // const chunkId = profilePicFile
+        // await profilePicChunks.findOneAndDelete({files_id: chunkId})
+        // res.status(200).json({ message: 'successful'})
+    } catch (e){
+        console.log(e);
+        res.status(500).json({ error: 'Server Errored' });
+    }
+    res.redirect('/profile');
+})
+
+
+app.get("/api/profileInfo/getPicture", checkAuthenticated, dontCache,checkRole(["player"]), async (req, res) => {
+    const id = req.user.preferred_username
+    console.log('getPicture id '+id)
+    const profilePicFile = await profilePicFiles.findOne({ filename: id+".png"})
+    if(profilePicFile){
+        const chunkId = profilePicFile._id
+        const chunk = await profilePicChunks.findOne({files_id: chunkId})
+        res.status(200).json({ message: "ok",body: chunk.data })
+    }
+    else{
+        res.status(300).json({message: "no picture in db", body: ''})
+    }
 })
 
 
@@ -154,9 +195,10 @@ app.get("/api/profileInfo", checkAuthenticated, checkRole(["player"]),async (req
         console.log("error: ", e)
         res.status(500).json({ error: 'Internal server error' });
     }
+
 })
 
-app.post("/api/profileInfo/save", checkAuthenticated, async (req, res) => {
+app.post("/api/profileInfo/save", checkAuthenticated, checkRole(["player"]), async (req, res) => {
     const playerInfo: PlayerProfileInfo = req.body
     const result = await players.updateOne(
       {
@@ -172,6 +214,7 @@ app.post("/api/profileInfo/save", checkAuthenticated, async (req, res) => {
       }
     )
     res.status(200).json({ status: "ok" })
+
   })
 
 
@@ -179,6 +222,9 @@ client.connect().then(async () => {
     logger.info('connected successfully to MongoDB')
     db = client.db("game")
     players = db.collection("players")
+    profilePicChunks = db.collection("profilePics.chunks")
+    profilePicFiles = db.collection("profilePics.files")
+
     
     if (DISABLE_SECURITY) {
       passport.use("oidc", new CustomStrategy((req, done) => done(null, { preferred_username: req.query.user, roles: req.query.role })))

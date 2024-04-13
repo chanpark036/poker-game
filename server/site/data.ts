@@ -6,3 +6,16 @@ export interface PlayerProfileInfo {
     gamesPlayed: number
     leaderboardRanking?: number
   }
+
+
+export interface ProfilePicFile{
+    length: number
+    chunkSize: number
+    fileName: string
+    contentType: string
+}
+
+export interface ProfilePicChunk{
+    n: number
+    data: any
+}
