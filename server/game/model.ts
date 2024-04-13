@@ -159,7 +159,7 @@ export function determineHands({cardsByPlayer, communityCards}:GameState, cards:
   return playerStatuses
 }
 
-export function determineWinner({cardsByPlayer, communityCards, playerHandStatuses}:GameState, cards: Card[]): PlayerId[] {
+export function determineWinner({cardsByPlayer, communityCards, playerHandStatuses, playersStillIn}:GameState, cards: Card[]): PlayerId[] {
 
   const handRankingOrder = [
     "royal-flush",
@@ -177,6 +177,10 @@ export function determineWinner({cardsByPlayer, communityCards, playerHandStatus
   let winningPlayerIds: PlayerId[] | null = null
   let bestHandRanking: string | null = null
   for (const playerId in playerHandStatuses) {
+    if (!playersStillIn.includes(playerId)) {
+      continue
+    }
+
     const playerStatus = playerHandStatuses[playerId]
     
     if (!winningPlayerIds || !bestHandRanking) {
