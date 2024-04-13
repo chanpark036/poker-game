@@ -174,7 +174,7 @@ export function determineWinner({cardsByPlayer, communityCards, playerHandStatus
     "high-card"
   ];
  
-  let winningPlayerIds: PlayerId[] | null = null
+  let winningPlayerIds: PlayerId[] = []
   let bestHandRanking: string | null = null
   for (const playerId in playerHandStatuses) {
     if (!playersStillIn.includes(playerId)) {
@@ -183,7 +183,7 @@ export function determineWinner({cardsByPlayer, communityCards, playerHandStatus
 
     const playerStatus = playerHandStatuses[playerId]
     
-    if (!winningPlayerIds || !bestHandRanking) {
+    if (winningPlayerIds.length == 0 || !bestHandRanking) {
       winningPlayerIds = [playerId]
       bestHandRanking = playerStatus
       continue
@@ -304,9 +304,9 @@ export function determineWinner({cardsByPlayer, communityCards, playerHandStatus
     }
 
     
-    return winningPlayerIds
 
   }
+  return winningPlayerIds
 
   
 

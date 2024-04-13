@@ -78,7 +78,7 @@ io.on("connection", function(socket){
         const cards = await getCards()
 
         if (gameState.phase == "preflop") {
-            console.log("changing to flop")
+            // console.log("changing to flop")
             const newPhase = "flop"
             const flop = getCardAmt(gameState.deckCards, 3)
             let newGameState = {...gameState, phase: newPhase, communityCards: flop}
@@ -114,10 +114,11 @@ io.on("connection", function(socket){
 
         if (gameState.phase == "river") {
             // console.log("determine a winner")
+            // console.log(gameState.deckCards)
 
             const winnerList: PlayerId[] = determineWinner(gameState, cards)
-            console.log(winnerList)
-            if (typeof(winnerList) != null) {
+            // console.log(winnerList)
+            if (winnerList.length !== 0) {
                 const winningsPerPlayer: number = gameState.potAmount / winnerList.length
                 gameState.potAmount = 0
                 for (let player of winnerList) {
