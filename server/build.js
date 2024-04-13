@@ -2,7 +2,7 @@ const { build } = require('esbuild')
 const esbuildPluginPino = require('esbuild-plugin-pino')
 
 build({
-  entryPoints: ['server.ts'],
+  entryPoints: ['game/server.ts'],
   outdir: 'dist',
   platform: 'node',
   format: 'cjs',
