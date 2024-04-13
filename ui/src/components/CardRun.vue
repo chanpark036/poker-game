@@ -1,10 +1,15 @@
 <template>
     <div class="table">
-        <div class="card-space">{{  card  }}</div>
-        <div class="card-space"></div>
-        <div class="card-space"></div>
-        <div class="card-space"></div>
-        <div class="card-space"></div>
+        <div class="card-space" v-if="communityCards[0]"> {{  communityCards[0].rank  }} {{ communityCards[0].suit }}</div>
+        <div class="card-space" v-else></div>
+        <div class="card-space" v-if="communityCards[1]"> {{  communityCards[1].rank  }} {{ communityCards[1].suit }}</div>
+        <div class="card-space" v-else></div>
+        <div class="card-space" v-if="communityCards[2]"> {{  communityCards[2].rank  }} {{ communityCards[2].suit }}</div>
+        <div class="card-space" v-else></div>
+        <div class="card-space" v-if="communityCards[3]"> {{  communityCards[3].rank  }} {{ communityCards[3].suit }}</div>
+        <div class="card-space" v-else></div>
+        <div class="card-space" v-if="communityCards[4]"> {{  communityCards[4].rank  }} {{ communityCards[4].suit }}</div>
+        <div class="card-space" v-else></div>
     </div>
 </template>
 
@@ -48,11 +53,10 @@
     import { Card} from "../../../server/game/model"
 
     interface Props {
-        card?: Card,
+        communityCards?: Card[]
     }
 
     // default values for props
     const props = withDefaults(defineProps<Props>(), {
-        card: undefined,
     })
 </script>
