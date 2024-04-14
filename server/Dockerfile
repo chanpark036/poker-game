@@ -10,8 +10,8 @@ COPY game/*.ts* game/
 RUN mkdir /home/node/app/site
 COPY site/*.ts* site/
 
-# RUN mkdir /home/node/app/site/@types/express
-# COPY site/@types/express/*.ts* site/@types/express/
+RUN mkdir /home/node/app/site/@types/
+COPY site/@types/express/*.ts* site/@types/
 
 RUN mkdir /home/node/app/site/middleware
 COPY site/middleware/*.ts* site/middleware/

@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref, inject, Ref, onMounted} from 'vue'
+import { ref, inject, Ref, onMounted} from 'vue'
 import { Player } from '../../../server/game/model'
 import {PlayerProfileInfo} from '../../../server/site/data'
 

@@ -2,7 +2,7 @@
     <p>My bet: {{ myBet }}</p>
     <p>Highest Bet: {{ highestBet }}</p>
 
-    <div class="playerCards">
+    <div class="playerCards" v-if="myCards">
         <div class="card-space" v-if="myCards[0]">{{ myCards[0].rank }} {{ myCards[0].suit }}</div>
         <div calss="cards-space" v-else></div>
         <div class="card-space" v-if="myCards[1]">{{ myCards[1].rank }} {{ myCards[1].suit }}</div>
@@ -50,8 +50,8 @@
 </style>
 
 <script setup lang="ts">
-import { Ref, computed, ref } from 'vue';
-import { Card, PlayerId } from '../../../server/game/model';
+import { computed, ref } from 'vue';
+import { Card } from '../../../server/game/model';
 
 
     interface Props {

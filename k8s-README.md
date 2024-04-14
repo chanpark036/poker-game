@@ -19,7 +19,7 @@ cd ..
 # Deploy on Kubernetes
 
 ```bash
-kubectl create -f k8s/
+kubectl create -f k8s-poker/
 ```
 
 # Undeploy
@@ -27,7 +27,7 @@ kubectl create -f k8s/
 Undeploy before re-deploying if you make a change to the app. Also remember to rebuild Docker images per the instructions earlier in this README.
 
 ```bash
-kubectl delete -f k8s/
+kubectl delete -f k8s-poker/
 ```
 
 # Do one-time Mongo setup

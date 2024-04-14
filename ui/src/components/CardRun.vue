@@ -1,5 +1,5 @@
 <template>
-    <div class="table">
+    <div class="table" v-if="communityCards && communityCards.length > 0">
         <div class="card-space" v-if="communityCards[0]"> {{  communityCards[0].rank  }} {{ communityCards[0].suit }}</div>
         <div class="card-space" v-else></div>
         <div class="card-space" v-if="communityCards[1]"> {{  communityCards[1].rank  }} {{ communityCards[1].suit }}</div>
@@ -44,19 +44,11 @@
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-
-
-
 </style>
 
 <script setup lang="ts">
-    import { Card} from "../../../server/game/model"
+    import { Card } from "../../../server/game/model"  
+    import { defineProps } from 'vue'
 
-    interface Props {
-        communityCards?: Card[]
-    }
-
-    // default values for props
-    const props = withDefaults(defineProps<Props>(), {
-    })
+    const { communityCards } = defineProps<{ communityCards?: Card[] }>()
 </script>

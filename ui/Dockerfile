@@ -2,6 +2,17 @@
 FROM library/node:18-alpine as node
 WORKDIR /home/node/app
 COPY *.js* ./
+
+# RUN mkdir /home/node/app/src
+# COPY src/*.ts* src/
+# COPY src/*.vue* src/
+
+# RUN mkdir /home/node/app/src/components
+# COPY src/components/*.vue* src/components/
+
+# RUN mkdir /home/node/app/src/views
+# COPY src/views/*.vue* src/views/
+
 RUN npm i
 COPY *.ts ./
 COPY index.html ./
