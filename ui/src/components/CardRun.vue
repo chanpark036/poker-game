@@ -1,14 +1,17 @@
 <template>
     <div class="table">
-        <div class="card-space" v-if="communityCards[0]"> {{  communityCards[0].rank  }} {{ communityCards[0].suit }}</div>
+        <div v-if="communityCards[0]">
+          <img :src="getCardImage(communityCards[0]?.rank, communityCards[0]?.suit)" class="card-space">
+        </div>
+    
         <div class="card-space" v-else></div>
-        <div class="card-space" v-if="communityCards[1]"> {{  communityCards[1].rank  }} {{ communityCards[1].suit }}</div>
+        <div v-if="communityCards[1]"><img :src="getCardImage(communityCards[1]?.rank, communityCards[1]?.suit)" class="card-space"></div>
         <div class="card-space" v-else></div>
-        <div class="card-space" v-if="communityCards[2]"> {{  communityCards[2].rank  }} {{ communityCards[2].suit }}</div>
+        <div v-if="communityCards[2]"><img :src="getCardImage(communityCards[2]?.rank, communityCards[2]?.suit)" class="card-space"></div>
         <div class="card-space" v-else></div>
-        <div class="card-space" v-if="communityCards[3]"> {{  communityCards[3].rank  }} {{ communityCards[3].suit }}</div>
+        <div v-if="communityCards[3]"><img :src="getCardImage(communityCards[3]?.rank, communityCards[3]?.suit)" class="card-space"></div>
         <div class="card-space" v-else></div>
-        <div class="card-space" v-if="communityCards[4]"> {{  communityCards[4].rank  }} {{ communityCards[4].suit }}</div>
+        <div v-if="communityCards[4]"> <img :src="getCardImage(communityCards[4]?.rank, communityCards[4]?.suit)" class="card-space"></div>
         <div class="card-space" v-else></div>
     </div>
 </template>
@@ -39,8 +42,8 @@
   
   .card-space {
     width: 80px;
-    height: 120px;
-    background-color: #ccc;
+    height: 115px;
+    background-color: white;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
@@ -50,7 +53,7 @@
 </style>
 
 <script setup lang="ts">
-    import { Card} from "../../../server/game/model"
+    import { Card, getCardImage} from "../../../server/game/model"
 
     interface Props {
         communityCards?: Card[]
@@ -59,4 +62,5 @@
     // default values for props
     const props = withDefaults(defineProps<Props>(), {
     })
+
 </script>
