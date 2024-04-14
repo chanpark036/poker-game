@@ -41,6 +41,6 @@
     "start": "ts-node-dev --respawn game/server.ts",
     "setup": "ts-node site/setupMongo.ts",
     "build": "node build.js",
-    "serve": "HOST=localhost ts-node-dev --respawn site/server.ts"
+    "serve": "ts-node-dev --respawn site/server.ts"
   }
 }

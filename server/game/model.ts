@@ -88,8 +88,12 @@ export function dealCards(playerIds: PlayerId[], cards: CardId[]): Record<string
 
   playerIds.forEach((player: PlayerId) => {
     cardsByPlayer[player] = []
-    cardsByPlayer[player].push(cards.pop());
-    cardsByPlayer[player].push(cards.pop());
+    for (let i = 0; i < 2; i++) {
+      const card = cards.pop(); // Pop a card from the deck
+      if (card !== undefined) { // Check if a card was popped successfully
+        cardsByPlayer[player].push(card); // Add the card to the player's hand
+      }
+    }
   });
   return cardsByPlayer
 }
@@ -98,7 +102,10 @@ export function getCardAmt(cards: CardId[], num: number) {
   const cardies: CardId[] = []
 
   for (let i = 0; i < num; i++) {
-    cardies.push(cards.pop())
+    const card = cards.pop();
+    if (card !== undefined) {
+      cardies.push(card)
+    }
   }
   return cardies
 }
@@ -410,7 +417,12 @@ function hasPair(hand: Card[]): boolean {
 
 
 function toCard(card: string, deckCards: Card[]): Card{
-  return deckCards.find(c => c._id === card)
+  const foundCard = deckCards.find(c => c._id === card);
+  if (foundCard) {
+    return foundCard;
+  } else {
+    throw new Error(`Card with ID ${card} not found in the deck.`);
+  }
 }
 
 function flushHighest(cardIds: string[], cards: Card[]): number {
@@ -441,7 +453,7 @@ function quadHighest(cardIds: string[], cards: Card[]): number {
       rankCounts[card.rank] = (rankCounts[card.rank] || 0) + 1;
     }
   }
-  let quadRank = null;
+  let quadRank = "";
   for (const rank in rankCounts) {
     if (rankCounts[rank] === 4) {
       quadRank = rank;
@@ -455,11 +467,22 @@ function quadHighest(cardIds: string[], cards: Card[]): number {
 
 function straightHighest(cardIds: string[], cards: Card[]): number {
   const straightCards = cardIds.map(cardId => cards.find(card => card._id === cardId));
+  if (!straightCards || straightCards.length === 0) {
+    return 0;
+  }
   straightCards.sort((a, b) => {
     const rankOrder = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
-    return rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank);
+    if (a && b) { 
+      return rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank);
+    }
+    return 0;
   });
-  return toNumber(straightCards[straightCards.length - 1].rank);
+
+  const lastCard = straightCards[straightCards.length - 1];
+  if (!lastCard) {
+    return 0;
+  }
+  return toNumber(lastCard.rank);
 }
 
 function tripsHighest(cardIds: string[], cards: Card[]): number {
@@ -478,7 +501,10 @@ function tripsHighest(cardIds: string[], cards: Card[]): number {
       break;
     }
   }
-  return toNumber(tripsRank);
+  if (tripsRank != null) {
+    return toNumber(tripsRank);
+  }
+  return 0;
 }
 
 function pairHighest(cardIds: string[], cards: Card[]): number {
