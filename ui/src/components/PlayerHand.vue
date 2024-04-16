@@ -2,12 +2,10 @@
     <p>My bet: {{ myBet }}</p>
     <p>Highest Bet: {{ highestBet }}</p>
 
-    <div class="playerCards" v-if="myCards">
-        <div class="card-space" v-if="myCards[0]">{{ myCards[0].rank }} {{ myCards[0].suit }}</div>
-        <div calss="cards-space" v-else></div>
-        <div class="card-space" v-if="myCards[1]">{{ myCards[1].rank }} {{ myCards[1].suit }}</div>
+    <div class="playerCards"  v-if="myCards">
+        <div v-if="myCards[0]"><img :src="getCardImage(myCards[0]?.rank, myCards[0]?.suit)" class="card-space"></div>
         <div class="cards-space" v-else></div>
-
+        <div v-if="myCards[1]"><img :src="getCardImage(myCards[1]?.rank, myCards[1]?.suit)" class="card-space"></div>
     </div>
     <div v-if="myTurn && myTotal">
         <button @click="$emit('action', 'check', 0)" v-if="myBet === highestBet">Check</button>
@@ -42,17 +40,16 @@
 
   .card-space {
     width: 80px;
-    height: 120px;
-    background-color: #ccc;
+    height: 115px;
+    background-color: #ffffff;
     border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
   }
 </style>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Card } from "../../model.ts";
-
+import { Card, getCardImage } from "../../model.ts";
 
     interface Props {
         myId?: string,

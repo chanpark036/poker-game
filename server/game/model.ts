@@ -2,7 +2,8 @@
 // data model for cards and game state
 
 export const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
-export const SUITS = ["♦️", "♥️", "♣️", "♠️"]
+// export const SUITS = ["♦️", "♥️", "♣️", "♠️"]
+export const SUITS = ["diamonds", "hearts", "clubs", "spades"]
 
 export type CardId = string
 export type PlayerId = string
@@ -562,3 +563,8 @@ function toNumber(rank: string): number {
 }
 
 
+
+export function getCardImage(rank: string, suits: string){
+  console.log('../../assets/' + rank + '_of_' + suits+'.svg')
+  return '../../assets/' + rank + '_of_' + suits+'.svg'
+}
