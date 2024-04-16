@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, RouteLocationNormalized } from 'vue-router'
 import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
 
 import 'bootstrap/dist/css/bootstrap.css'
@@ -15,23 +15,19 @@ const routes = [
 	{
 		path: "/game/:roomId/:playerId",
 		component: Game,
-		props (route) {
-			return {
-				roomId: route.params.roomId,
-				playerId: route.params.playerId
-			}
-		}
+		props: (route: RouteLocationNormalized) => ({ 
+		roomId: route.params.roomId,
+		playerId: route.params.playerId
+		})
 	},
 
 	{
 		path: "/:roomId/:playerId",
 		component: Waiting,
-		props (route) {
-			return {
-				roomId: route.params.roomId,
-				playerId: route.params.playerId
-			}
-		}
+		props: (route: RouteLocationNormalized) => ({ 
+			roomId: route.params.roomId,
+			playerId: route.params.playerId
+			})
 	},
 
 	{
@@ -52,7 +48,7 @@ const router = createRouter({
 })
 
 createApp(App)
-	.use(BootstrapVue)
-	.use(BootstrapVueIcons)
 	.use(router)
+	.use(BootstrapVue as any)
+	.use(BootstrapVueIcons as any)
 	.mount('#app')
