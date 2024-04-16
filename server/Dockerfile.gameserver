@@ -1,0 +1,18 @@
+# esbuild build
+FROM library/node:18-alpine as esbuild
+WORKDIR /home/node/app 
+
+COPY *.js* ./
+COPY *.ts* ./
+RUN mkdir /home/node/app/game
+COPY game/*.ts* game/
+
+RUN npm i
+RUN ls -al && npm run game-build
+
+# node
+FROM library/node:18-alpine as node
+COPY --from=esbuild /home/node/app/dist-game/ /home/node/app/dist-game/
+WORKDIR /home/node/app
+ENTRYPOINT [ "node", "dist-game/server.js" ]
+EXPOSE 8171

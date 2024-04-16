@@ -13,7 +13,7 @@ I am Player {{ playerId }}
 
 <script setup lang="ts">
 import { io } from "socket.io-client"
-import { PlayerId, RoomId } from "../../../server/game/model";
+import { PlayerId, RoomId } from "../../model.ts"  ;
 import { Ref, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 const socket = io()

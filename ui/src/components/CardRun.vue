@@ -1,5 +1,5 @@
 <template>
-    <div class="table">
+    <div class="table" v-if="communityCards && communityCards.length > 0">
         <div v-if="communityCards[0]">
           <img :src="getCardImage(communityCards[0]?.rank, communityCards[0]?.suit)" class="card-space">
         </div>
@@ -47,20 +47,11 @@
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-
-
-
 </style>
 
 <script setup lang="ts">
-    import { Card, getCardImage} from "../../../server/game/model"
+    import { Card, getCardImage } from "../../model.ts"  
+    import { defineProps } from 'vue'
 
-    interface Props {
-        communityCards?: Card[]
-    }
-
-    // default values for props
-    const props = withDefaults(defineProps<Props>(), {
-    })
-
+    const { communityCards } = defineProps<{ communityCards?: Card[] }>()
 </script>
