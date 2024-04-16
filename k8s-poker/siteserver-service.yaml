@@ -10,6 +10,6 @@ spec:
   - name: "siteserver-service"
     port: 5001
     targetPort: 8191
-    nodePort: 31001
+    nodePort: 31002
   selector:
     app: siteserver
