@@ -6,12 +6,14 @@
 ```bash
 cd server
 docker build . -f Dockerfile.gameserver -t poker-gameserver
+cd ..
 ```
 
 ## Site Server
 ```bash
 cd server
 docker build . -f Dockerfile.siteserver -t poker-siteserver
+cd ..
 ```
 
 ## UI

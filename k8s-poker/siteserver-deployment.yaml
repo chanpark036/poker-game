@@ -15,7 +15,7 @@ spec:
         app: siteserver
     spec:
       containers:
-      - image: poker
+      - image: poker-siteserver
         name: siteserver
         imagePullPolicy: Never
         ports:

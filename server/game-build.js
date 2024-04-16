@@ -3,7 +3,7 @@ const esbuildPluginPino = require('esbuild-plugin-pino')
 
 build({
   entryPoints: ['game/server.ts'],
-  outdir: 'dist', // MAKE SEPARATE DIST FOR GAME AND SITE
+  outdir: 'dist-game', 
   platform: 'node',
   format: 'cjs',
   bundle: true,

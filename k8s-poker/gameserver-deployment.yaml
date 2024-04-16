@@ -15,7 +15,7 @@ spec:
         app: gameserver
     spec:
       containers:
-      - image: poker
+      - image: poker-gameserver
         name: gameserver
         imagePullPolicy: Never
         ports:

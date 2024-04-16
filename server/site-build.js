@@ -3,7 +3,7 @@ const esbuildPluginPino = require('esbuild-plugin-pino')
 
 build({
   entryPoints: ['site/server.ts'],
-  outdir: 'dist',
+  outdir: 'dist-site',
   platform: 'node',
   format: 'cjs',
   bundle: true,

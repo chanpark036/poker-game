@@ -15,7 +15,7 @@ spec:
         app: ui
     spec:
       containers:
-      - image: poker
+      - image: poker-ui
         name: ui
         imagePullPolicy: Never
         ports:

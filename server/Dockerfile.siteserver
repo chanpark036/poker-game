@@ -22,7 +22,7 @@ RUN ls -al && npm run site-build
 
 # node
 FROM library/node:18-alpine as node
-COPY --from=esbuild /home/node/app/dist/ /home/node/app/dist/
+COPY --from=esbuild /home/node/app/dist-site/ /home/node/app/dist-site/
 WORKDIR /home/node/app
-ENTRYPOINT [ "node", "dist/server.js" ]
+ENTRYPOINT [ "node", "dist-site/server.js" ]
 EXPOSE 8171
