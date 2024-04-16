@@ -8,8 +8,8 @@ spec:
   type: NodePort
   ports:
   - name: "siteserver-service"
-    port: 5001
-    targetPort: 8191
+    port: 5002
+    targetPort: 8102
     nodePort: 31002
   selector:
     app: siteserver

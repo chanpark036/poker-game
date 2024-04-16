@@ -1,13 +1,12 @@
 import multer from 'multer'
-import util from 'util'
-// import { GridFsStorage } from 'multer-gridfs-storage'
-const GridFsStorage = require('multer-gridfs-storage')
+import {GridFsStorage} from 'multer-gridfs-storage'
+// const GridFsStorage = require('multer-gridfs-storage')
 const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017'
 
 const storage = new GridFsStorage({
-    url: mongoUrl+'/game',
+    url: process.env.MONGO_URL+'/game',
     options: { useNewUrlParser: true, useUnifiedTopology: true },
-    file: (req, file) => {
+    file: (req: any, file: any) => {
       const match = ["image/png", "image/jpeg"];
   
       if (match.indexOf(file.mimetype) === -1) {

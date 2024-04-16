@@ -9,7 +9,7 @@ spec:
   ports:
   - name: "gameserver-service"
     port: 5001
-    targetPort: 8191
+    targetPort: 8101
     nodePort: 31003
   selector:
     app: gameserver
