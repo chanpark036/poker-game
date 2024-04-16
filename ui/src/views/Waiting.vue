@@ -1,25 +1,32 @@
 <template>
-This is Room {{ roomId }}
-I am Player {{ playerId }}
-<button @click="startGame"> Start Game </button>
+    <div>
+        <div v-if="!show">
+            This is Room {{ roomId }}
+            I am Player {{ playerId }}
+            <button @click="startGame"> Start Game </button>
 
-<div>
-    Waiting Players
-    <ul>
-        <li v-for="player in waitingPlayers">{{ player }}</li>
-    </ul>
-</div>
+            <div>
+                Waiting Players
+                <ul v-if="waitingPlayers">
+                    <li v-for="player in waitingPlayers">{{ player }}</li>
+                </ul>
+            </div>
+        </div>
+        <div v-else> sorry ur room has been deleted</div>
+        {{ roomDeleted }}
+    </div>
 </template>
 
 <script setup lang="ts">
 import { io } from "socket.io-client"
 import { PlayerId, RoomId } from "../../../server/game/model";
-import { Ref, onMounted, ref } from "vue";
+import { Ref, onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 const socket = io()
 const router = useRouter()
 
-
+const roomDeleted = ref(false)
+const show = computed(()=>roomDeleted.value)
 let waitingPlayers: Ref<PlayerId[]> = ref([])
 
 socket.on("player-joined", (roomId: RoomId, waitingPlayers1: PlayerId[]) => {
@@ -42,8 +49,15 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 socket.on("game-started", (roomId) => {
-    if (roomId == props.roomId){
+    if (roomId == props.roomId) {
         router.push(`/game/${props.roomId}/${props.playerId}`)
+    }
+})
+
+socket.on("room-deleted", (socketRoomId) => {
+    console.log(socketRoomId,props.roomId)
+    if (socketRoomId === props.roomId) {
+        roomDeleted.value = true
     }
 })
 
