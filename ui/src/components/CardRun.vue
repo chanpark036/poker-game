@@ -47,7 +47,7 @@
 </style>
 
 <script setup lang="ts">
-    import { Card } from "../../../server/game/model"  
+    import { Card } from "../../model.ts"  
     import { defineProps } from 'vue'
 
     const { communityCards } = defineProps<{ communityCards?: Card[] }>()

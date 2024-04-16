@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Card } from '../../../server/game/model';
+import { Card } from "../../model.ts";
 
 
     interface Props {

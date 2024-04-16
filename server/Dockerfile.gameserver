@@ -7,17 +7,8 @@ COPY *.ts* ./
 RUN mkdir /home/node/app/game
 COPY game/*.ts* game/
 
-RUN mkdir /home/node/app/site
-COPY site/*.ts* site/
-
-RUN mkdir /home/node/app/site/@types/
-COPY site/@types/express/*.ts* site/@types/
-
-RUN mkdir /home/node/app/site/middleware
-COPY site/middleware/*.ts* site/middleware/
-
 RUN npm i
-RUN ls -al && npm run build
+RUN ls -al && npm run game-build
 
 # node
 FROM library/node:18-alpine as node

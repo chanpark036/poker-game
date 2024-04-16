@@ -41,7 +41,8 @@
   "scripts": {
     "start": "ts-node-dev --respawn game/server.ts",
     "setup": "ts-node site/setupMongo.ts",
-    "build": "node build.js",
+    "site-build": "node site-build.js",
+    "game-build": "node game-build.js",
     "serve": "ts-node-dev --respawn site/server.ts"
   }
 }

@@ -56994,15 +56994,22 @@ function dealCards(playerIds, cards) {
   }
   playerIds.forEach((player) => {
     cardsByPlayer[player] = [];
-    cardsByPlayer[player].push(cards.pop());
-    cardsByPlayer[player].push(cards.pop());
+    for (let i = 0; i < 2; i++) {
+      const card = cards.pop();
+      if (card !== void 0) {
+        cardsByPlayer[player].push(card);
+      }
+    }
   });
   return cardsByPlayer;
 }
 function getCardAmt(cards, num) {
   const cardies = [];
   for (let i = 0; i < num; i++) {
-    cardies.push(cards.pop());
+    const card = cards.pop();
+    if (card !== void 0) {
+      cardies.push(card);
+    }
   }
   return cardies;
 }
@@ -57245,7 +57252,12 @@ function hasPair(hand) {
   return Object.values(counts).includes(2);
 }
 function toCard(card, deckCards) {
-  return deckCards.find((c) => c._id === card);
+  const foundCard = deckCards.find((c) => c._id === card);
+  if (foundCard) {
+    return foundCard;
+  } else {
+    throw new Error(`Card with ID ${card} not found in the deck.`);
+  }
 }
 function flushHighest(cardIds, cards) {
   const suitCounts = {};
@@ -57274,7 +57286,7 @@ function quadHighest(cardIds, cards) {
       rankCounts[card.rank] = (rankCounts[card.rank] || 0) + 1;
     }
   }
-  let quadRank = null;
+  let quadRank = "";
   for (const rank in rankCounts) {
     if (rankCounts[rank] === 4) {
       quadRank = rank;
@@ -57285,11 +57297,21 @@ function quadHighest(cardIds, cards) {
 }
 function straightHighest(cardIds, cards) {
   const straightCards = cardIds.map((cardId) => cards.find((card) => card._id === cardId));
+  if (!straightCards || straightCards.length === 0) {
+    return 0;
+  }
   straightCards.sort((a, b) => {
     const rankOrder2 = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"];
-    return rankOrder2.indexOf(a.rank) - rankOrder2.indexOf(b.rank);
+    if (a && b) {
+      return rankOrder2.indexOf(a.rank) - rankOrder2.indexOf(b.rank);
+    }
+    return 0;
   });
-  return toNumber(straightCards[straightCards.length - 1].rank);
+  const lastCard = straightCards[straightCards.length - 1];
+  if (!lastCard) {
+    return 0;
+  }
+  return toNumber(lastCard.rank);
 }
 function tripsHighest(cardIds, cards) {
   const rankCounts = {};
@@ -57306,7 +57328,10 @@ function tripsHighest(cardIds, cards) {
       break;
     }
   }
-  return toNumber(tripsRank);
+  if (tripsRank != null) {
+    return toNumber(tripsRank);
+  }
+  return 0;
 }
 function pairHighest(cardIds, cards) {
   const rankCounts = {};

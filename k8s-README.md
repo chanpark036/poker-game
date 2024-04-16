@@ -2,18 +2,21 @@
 
 **NOTE**: Kubernetes does *not* build Docker images for you. Before deploying for the first time, or if you make any changes to your code, you *must* (re-)run the commands below to regenerate the images, and then re-deploy to Kubernetes.
 
-## Server
+## Game Server
 ```bash
 cd server
-docker build -t poker-server .
-cd ..
+docker build . -f Dockerfile.gameserver -t poker-gameserver
 ```
 
-## UI (NGINX)
+## Site Server
 ```bash
-cd ui
-docker build -t poker-ui .
-cd ..
+cd server
+docker build . -f Dockerfile.siteserver -t poker-siteserver
+```
+
+## UI
+```bash
+docker build . -f Dockerfile.ui -t poker-ui
 ```
 
 # Deploy on Kubernetes
