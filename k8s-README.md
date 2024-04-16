@@ -18,7 +18,9 @@ cd ..
 
 ## UI
 ```bash
+cd ui
 docker build . -f Dockerfile.ui -t poker-ui
+cd ..
 ```
 
 # Deploy on Kubernetes
