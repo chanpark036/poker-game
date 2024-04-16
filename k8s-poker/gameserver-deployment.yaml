@@ -19,7 +19,7 @@ spec:
         name: gameserver
         imagePullPolicy: Never
         ports:
-        - containerPort: 8191
+        - containerPort: 8101
           name: gameserver
         env:
         - name: MONGO_URL

@@ -15,6 +15,7 @@ import { PlayerProfileInfo, ProfilePicChunk, ProfilePicFile } from './data'
 import { upload, dontCache}from './middleware/upload'
 
 const HOST = process.env.HOST || "127.0.0.1"
+// const HOST = process.env.HOST || "localhost"
 const GROUP_ID = ""
 // const DISABLE_SECURITY = !!process.env.DISABLE_SECURITY
 const DISABLE_SECURITY = false
@@ -53,7 +54,7 @@ app.use(session({
   cookie: { secure: false },
 
   store: MongoStore.create({
-    mongoUrl: 'mongodb://127.0.0.1:27017',
+    mongoUrl: mongoUrl,
     ttl: 14 * 24 * 60 * 60 // 14 days
   })
 }))
@@ -235,7 +236,7 @@ client.connect().then(async () => {
       const params = {
         scope: 'openid profile email',
         nonce: generators.nonce(),
-        redirect_uri: `http://${HOST}:8100/api/login-callback`,
+        redirect_uri: `http://${HOST}:31000/api/login-callback`,
         state: generators.state(),
   
         // this forces a fresh login screen every time
