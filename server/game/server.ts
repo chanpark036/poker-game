@@ -1,7 +1,7 @@
 import http from "http"
 import { Server } from "socket.io"
 import { Card, GameState, PlayerId, RoomId, createEmptyGame, CardId, getCardAmt, determineHands, determineWinner, dealCards } from "./model"
-import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState, getGameState} from "./mongo"
+import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState, gameStateExists, deleteGameState} from "./mongo"
 
 async function main() {
 
@@ -27,20 +27,30 @@ io.on("connection", function(socket){
         // console.log(rooms)
         if (rooms) {
             for (const room of rooms.keys()) {
-                availableRooms.push(room);
+                if (rooms.get(room).size > 1)
+                {
+                    availableRooms.push(room);
+                }
             }
         }
         io.emit('existing-rooms',availableRooms)
     })
 
-    socket.on("delete-room", (roomId)=>{
+    socket.on("delete-room", async (roomId)=>{
         const rooms: Map<string, Set<string>> = io.sockets.adapter.rooms
         const sockets = io.sockets.sockets
         for(const socketId of rooms.get(roomId)){
             sockets.get(socketId).disconnect(true)
         }
         delete waitingPlayers[roomId]
-        socket.emit("room-deleted",roomId)
+
+        if(await gameStateExists(roomId))
+        {
+            await deleteGameState(roomId)
+        }
+
+        io.emit("room-deleted",roomId)
+        console.log("deleted room" + roomId)
     })
 
 

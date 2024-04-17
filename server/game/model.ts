@@ -21,10 +21,7 @@ export interface Player {
   _id: PlayerId
   name: string
   age: number
-  earnings: number
-  profilePic: string | null
-  gamesPlayed: number
-  leaderboardRanking?: number
+  bio: string
 }
 
 export interface Room{

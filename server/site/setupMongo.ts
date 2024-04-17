@@ -29,19 +29,14 @@ const players: Player[] = [
     "_id": "1",
     "name": "alice",
     "age": 1,
-    "earnings": 100,
-    "profilePic": null,
-    "gamesPlayed": 0,
-    "leaderboardRanking": 0
+    "bio": 'hi',
   },
   {
     "_id": "2",
     "name": "bob",
     "age": 2,
-    "earnings": 200,
-    "profilePic": null,
-    "gamesPlayed": 0,
-    "leaderboardRanking": 0
+    "bio": 'yo',
+
   },
 ]
 
