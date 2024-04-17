@@ -24,3 +24,5 @@ spec:
         env:
         - name: MONGO_URL
           value: mongodb://db
+        - name: SERVER_PORT
+          value: "8101"
