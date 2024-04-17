@@ -9,10 +9,15 @@ build-job:       # This job runs in the build stage, which runs first.
     - cd server
     - echo "Building game server..."
     - docker build . -f Dockerfile.gameserver -t poker-gameserver
+    - echo "Finished building game server..."
+    - echo "Building site server..."
     - docker build . -f Dockerfile.siteserver -t poker-siteserver
+    - echo "Finished building site server..."
     - cd ..
+    - echo "Building ui..."
     - cd ui
     - docker build . -f Dockerfile.ui -t poker-ui
+    - echo "Finished building ui..."
     - cd ..
     - echo "Compile complete."
 
