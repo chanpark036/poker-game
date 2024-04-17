@@ -1,17 +1,23 @@
 <template>
     <div>
-        <b-button @click="getRooms"></b-button>
-        <ul v-if="rooms">
-        <li v-for="(room,rid) in rooms">
-            <b-button @click="deleteRoom(room)"></b-button>
-            {{ room + rid}}
-        </li>
-    </ul>
+        <b-container class="mt-3">
+        <div v-if="rooms.length > 0">
+            <b-card bg-variant="info" text-variant="white" title="Active Rooms with More than One Person">
+        <b-list-group v-for="(room,rid) in rooms" :key="rid"> 
+            <b-list-group-item class="d-flex justify-content-start align-items-center" variant="light">
+                Room {{ room }}
+                <b-button @click="deleteRoom(room)" style="margin-left:auto" variant="danger">DELETE</b-button>
+            </b-list-group-item>
+        </b-list-group>
+    </b-card>
+        </div>
+        <div v-else><b-card title="No Rooms with More than One Person Yet" bg-variant="info" text-variant="white"></b-card></div>
+    </b-container>
     </div>
 </template>
 
 <script setup lang="ts">
-import {ref, Ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import { io } from "socket.io-client"
 
 const socket = io()
@@ -27,6 +33,8 @@ socket.on("existing-rooms", (roomList) => {
 
 function deleteRoom(roomId: string){
     socket.emit("delete-room",roomId)
+    getRooms()
 }
 
+onMounted(getRooms)
 </script>

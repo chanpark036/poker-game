@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="!show">
+        <div v-if="!roomDeleted">
             This is Room {{ roomId }}
             I am Player {{ playerId }}
             <button @click="startGame"> Start Game </button>
@@ -13,20 +13,19 @@
             </div>
         </div>
         <div v-else> sorry ur room has been deleted</div>
-        {{ roomDeleted }}
     </div>
 </template>
 
 <script setup lang="ts">
 import { io } from "socket.io-client"
 import { PlayerId, RoomId } from "../../../server/game/model";
-import { Ref, onMounted, ref, computed } from "vue";
+import { Ref, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+
 const socket = io()
 const router = useRouter()
 
 const roomDeleted = ref(false)
-const show = computed(()=>roomDeleted.value)
 let waitingPlayers: Ref<PlayerId[]> = ref([])
 
 socket.on("player-joined", (roomId: RoomId, waitingPlayers1: PlayerId[]) => {
@@ -54,10 +53,11 @@ socket.on("game-started", (roomId) => {
     }
 })
 
-socket.on("room-deleted", (socketRoomId) => {
+socket.on("room-deleted", (socketRoomId: RoomId) => {
     console.log(socketRoomId,props.roomId)
     if (socketRoomId === props.roomId) {
-        roomDeleted.value = true
+        alert('Room Deleted Bye Bye');
+        router.push(`/`)
     }
 })
 

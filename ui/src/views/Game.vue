@@ -59,7 +59,10 @@ import { io } from "socket.io-client"
 import { Card, CardId, GameState, PlayerId } from "../../../server/game/model"
 import CardRun from "../components/CardRun.vue"
 import PlayerHand from "../components/PlayerHand.vue"
+import { useRouter } from "vue-router";
 
+
+const router = useRouter()
 // props
 interface Props {
   roomId? : string
@@ -139,8 +142,9 @@ socket.on("winners", (winnersList) => {
 })
 
 socket.on("room-deleted", (socketRoomId)=>{
-  if(socketRoomId === props.roomId){
-    roomDeleted.value = true
+  if(socketRoomId == props.roomId){
+      alert('Room Deleted Bye Bye')
+      router.push(`/`)
   }
 })
 
