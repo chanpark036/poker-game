@@ -560,8 +560,7 @@ function toNumber(rank: string): number {
 }
 
 
-
 export function getCardImage(rank: string, suits: string){
-  console.log('../../assets/' + rank + '_of_' + suits+'.svg')
-  return '../../assets/' + rank + '_of_' + suits+'.svg'
+  console.log('/' + rank + '_of_' + suits+'.svg')
+  return '/' + rank + '_of_' + suits+'.svg'
 }

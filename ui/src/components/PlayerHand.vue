@@ -1,7 +1,6 @@
 <template>
     <p>My bet: {{ myBet }}</p>
     <p>Highest Bet: {{ highestBet }}</p>
-
     <div class="playerCards"  v-if="myCards">
         <div v-if="myCards[0]"><img :src="getCardImage(myCards[0]?.rank, myCards[0]?.suit)" class="card-space"></div>
         <div class="cards-space" v-else></div>
@@ -49,7 +48,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Card, getCardImage } from "../../model.ts";
+import { Card, getCardImage } from "../../model";
 
     interface Props {
         myId?: string,
