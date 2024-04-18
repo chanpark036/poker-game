@@ -1,7 +1,7 @@
 import http from "http"
 import { Server } from "socket.io"
 import { Card, GameState, PlayerId, RoomId, createEmptyGame, CardId, getCardAmt, determineHands, determineWinner, dealCards } from "./model"
-import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState, getGameState} from "./mongo"
+import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState, gameStateExists, deleteGameState} from "./mongo"
 
 async function main() {
 
@@ -15,11 +15,45 @@ const io = new Server(server, { adapter })
 // });
 // io.adapter(adapter);
 const port = parseInt(process.env.SERVER_PORT || "8101")
-
-
 const waitingPlayers: Record<RoomId, PlayerId[]> = {}
+
+
 io.on("connection", function(socket){
     
+    socket.on("get-rooms", ()=>{
+        const availableRooms = []
+        const rooms: Map<string, Set<string>> = io.sockets.adapter.rooms
+        // console.log(io.of("/").adapter.rooms)
+        // console.log(rooms)
+        if (rooms) {
+            for (const room of rooms.keys()) {
+                if (rooms.get(room).size > 1)
+                {
+                    availableRooms.push(room);
+                }
+            }
+        }
+        io.emit('existing-rooms',availableRooms)
+    })
+
+    socket.on("delete-room", async (roomId)=>{
+        const rooms: Map<string, Set<string>> = io.sockets.adapter.rooms
+        const sockets = io.sockets.sockets
+        for(const socketId of rooms.get(roomId)){
+            sockets.get(socketId).disconnect(true)
+        }
+        delete waitingPlayers[roomId]
+
+        if(await gameStateExists(roomId))
+        {
+            await deleteGameState(roomId)
+        }
+
+        io.emit("room-deleted",roomId)
+        console.log("deleted room" + roomId)
+    })
+
+
     socket.on("create-room", (roomId: RoomId)=>{
         socket.join(roomId);
         // console.log("room " + roomId + "created by player")
@@ -27,7 +61,7 @@ io.on("connection", function(socket){
     })
 
     socket.on("join-room", (roomId: RoomId, playerId: PlayerId)=>{
-        // socket.join(roomId);
+        socket.join(roomId);
         if (waitingPlayers[roomId]){
             waitingPlayers[roomId].push(playerId)
         }
@@ -160,5 +194,7 @@ io.on("connection", function(socket){
 server.listen(port)
 console.log(`Game server listening on port ${port}`)
 }
+
+
 
 main()

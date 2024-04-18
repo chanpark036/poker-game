@@ -56,15 +56,27 @@ export async function enterNewGameState(gameState: GameState){
 	}
 }
 
-export async function getGameState(gameStateId: RoomId) {
+export async function gameStateExists(gameStateId: RoomId) {
 	await mongoClient.connect()
 	const db = mongoClient.db(DB)
 	const gamesCollection = db.collection(GAMES_COLLECTION)
 	const hashedId = createHash('sha256').update(gameStateId).digest('hex')
 	const objectId = new ObjectId(hashedId.slice(0, 24));
-
-
-	return await gamesCollection.findOne({ _id: objectId }) as unknown as MongoGameState
+	const document = await gamesCollection.findOne({ _id: objectId })
+	if(document){
+		return true
+	}
+	else{
+		return false
+	}
+}
+export async function deleteGameState(gameStateId: RoomId) {
+	await mongoClient.connect()
+	const db = mongoClient.db(DB)
+	const gamesCollection = db.collection(GAMES_COLLECTION)
+	const hashedId = createHash('sha256').update(gameStateId).digest('hex')
+	const objectId = new ObjectId(hashedId.slice(0, 24));
+	return (await gamesCollection.deleteOne({ _id: objectId })).deletedCount as number
 }
 
 

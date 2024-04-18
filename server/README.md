@@ -34,6 +34,9 @@ for game part
 npm run start
 ```
 
-
+kill port
+```bash
+kill -9 $(lsof -ti:8101)
+```
 
 chan: npm run serve -> HOST=localhost ts-node-dev --respawn site/server.ts
