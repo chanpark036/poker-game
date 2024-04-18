@@ -5,6 +5,7 @@ import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState, gameStat
 
 async function main() {
 
+
 const server = http.createServer()
 const { socketIoAdapter: adapter } = await setupMongo()
 const io = new Server(server, { adapter })
@@ -19,6 +20,7 @@ const waitingPlayers: Record<RoomId, PlayerId[]> = {}
 
 
 io.on("connection", function(socket){
+
     
     socket.on("get-rooms", ()=>{
         const availableRooms = []
