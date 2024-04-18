@@ -1,7 +1,8 @@
 import { MongoClient, ObjectId } from "mongodb"
 import { createAdapter } from "@socket.io/mongo-adapter"
-import { GameState, RoomId, Card} from "./model"
+import { GameState, RoomId, Card, Player, RANKS, SUITS } from "./model"
 import { createHash } from "crypto"
+
 
 export const DB = "game"
 export const GAMES_COLLECTION = "games"
@@ -18,6 +19,45 @@ export interface MongoGameState extends GameState {
 	version: number
 }
 
+
+const cards: Card[] = []
+let count = 1
+for(let rank of RANKS){
+    for(let suit of SUITS){
+        cards.push(
+            {
+                "_id": String(count),
+                "rank": rank,
+                "suit": suit,
+                "picture": null
+            }
+        )
+        count+=1
+    }
+}
+
+
+const players: Player[] = [
+  {
+    "_id": "1",
+    "name": "alice",
+    "age": 1,
+    "earnings": 100,
+    "profilePic": null,
+    "gamesPlayed": 0,
+    "leaderboardRanking": 0
+  },
+  {
+    "_id": "2",
+    "name": "bob",
+    "age": 2,
+    "earnings": 200,
+    "profilePic": null,
+    "gamesPlayed": 0,
+    "leaderboardRanking": 0
+  },
+]
+
 export async function setupMongo() {
 	await mongoClient.connect()
 	const db = mongoClient.db(DB)
@@ -28,6 +68,9 @@ export async function setupMongo() {
 			capped: true,
 			size: 1e6
 		})
+		console.log("inserting cards", await db.collection("cards").insertMany(cards as any))
+		console.log("inserting players", await db.collection("players").insertMany(players as any))
+
 	} catch (e) {
 		// collection already exists; ignore
 	}
@@ -112,11 +155,14 @@ export async function tryToUpdateGameState(newGameState: GameState){
 }
 
 export async function getCards(){
+	console.log("abt to try and connect")
 	await mongoClient.connect()
+	console.log("connected")
 	const db = mongoClient.db(DB)
 	const cardCollection = db.collection("cards")
 	const cardArray = await cardCollection.find().toArray()
 	const cards = cardArray.map((card) => toCard(card))
+	console.log(cards)
 	return cards
 }
 

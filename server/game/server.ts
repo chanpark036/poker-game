@@ -2,8 +2,8 @@ import http from "http"
 import { Server } from "socket.io"
 import { Card, GameState, PlayerId, RoomId, createEmptyGame, CardId, getCardAmt, determineHands, determineWinner, dealCards } from "./model"
 import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState, getGameState} from "./mongo"
-
 async function main() {
+
 
 const server = http.createServer()
 const { socketIoAdapter: adapter } = await setupMongo()
@@ -19,6 +19,7 @@ const port = parseInt(process.env.SERVER_PORT || "8101")
 
 const waitingPlayers: Record<RoomId, PlayerId[]> = {}
 io.on("connection", function(socket){
+
     
     socket.on("create-room", (roomId: RoomId)=>{
         socket.join(roomId);
