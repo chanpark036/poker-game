@@ -26,6 +26,8 @@ deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: production
   script:
+    - echo "Deleting old application deployment..."
+    - kubectl delete -f k8s-poker/
     - echo "Deploying application..."
     - kubectl create -f k8s-poker/
     - echo "Application successfully deployed."
