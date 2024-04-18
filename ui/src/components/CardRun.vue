@@ -3,16 +3,18 @@
         <div v-if="communityCards[0]">
           <img :src="getCardImage(communityCards[0]?.rank, communityCards[0]?.suit)" class="card-space">
         </div>
-    
-        <div class="card-space" v-else></div>
         <div v-if="communityCards[1]"><img :src="getCardImage(communityCards[1]?.rank, communityCards[1]?.suit)" class="card-space"></div>
-        <div class="card-space" v-else></div>
         <div v-if="communityCards[2]"><img :src="getCardImage(communityCards[2]?.rank, communityCards[2]?.suit)" class="card-space"></div>
-        <div class="card-space" v-else></div>
         <div v-if="communityCards[3]"><img :src="getCardImage(communityCards[3]?.rank, communityCards[3]?.suit)" class="card-space"></div>
-        <div class="card-space" v-else></div>
         <div v-if="communityCards[4]"> <img :src="getCardImage(communityCards[4]?.rank, communityCards[4]?.suit)" class="card-space"></div>
         <div class="card-space" v-else></div>
+    </div>
+    <div class="table" v-else>
+      <div class="card-space" ></div>
+      <div class="card-space" ></div>
+      <div class="card-space" ></div>
+      <div class="card-space" ></div>
+      <div class="card-space" ></div>
     </div>
 </template>
 
@@ -50,7 +52,7 @@
 </style>
 
 <script setup lang="ts">
-    import { Card, getCardImage } from "../../model.ts"  
+    import { Card, getCardImage } from "../../model"  
     import { defineProps } from 'vue'
 
     const { communityCards } = defineProps<{ communityCards?: Card[] }>()
