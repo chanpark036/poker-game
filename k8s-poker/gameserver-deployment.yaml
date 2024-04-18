@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: gameserver
+  name: gameserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gameserver
+  template:
+    metadata:
+      labels:
+        app: gameserver
+    spec:
+      containers:
+      - image: poker-gameserver
+        name: gameserver
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8101
+          name: gameserver
+        env:
+        - name: MONGO_URL
+          value: mongodb://db
+        - name: SERVER_PORT
+          value: "8101"

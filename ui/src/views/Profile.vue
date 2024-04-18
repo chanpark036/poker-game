@@ -48,8 +48,8 @@
 
 <script setup lang="ts">
 import { ref, inject, Ref, onMounted} from 'vue'
-import { Player } from '../../../server/game/model'
-import {PlayerProfileInfo} from '../../../server/site/data'
+import { Player } from "../../model"  
+import {PlayerProfileInfo} from '../../data'
 
 const user: Ref<any> = inject("user")!
 const playerInfo: Ref<Player | null> = ref(null)

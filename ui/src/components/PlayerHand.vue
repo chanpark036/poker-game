@@ -2,12 +2,10 @@
     <p>My bet: {{ myBet }}</p>
     <p>Highest Bet: {{ highestBet }}</p>
 
-    <div class="playerCards">
+    <div class="playerCards"  v-if="myCards">
         <div v-if="myCards[0]"><img :src="getCardImage(myCards[0]?.rank, myCards[0]?.suit)" class="card-space"></div>
         <div class="cards-space" v-else></div>
         <div v-if="myCards[1]"><img :src="getCardImage(myCards[1]?.rank, myCards[1]?.suit)" class="card-space"></div>
-        <div class="cards-space" v-else></div>
-
     </div>
     <div v-if="myTurn && myTotal">
         <button @click="$emit('action', 'check', 0)" v-if="myBet === highestBet">Check</button>
@@ -50,9 +48,8 @@
 </style>
 
 <script setup lang="ts">
-import { Ref, computed, ref } from 'vue';
-import { Card, PlayerId, getCardImage } from '../../../server/game/model';
-
+import { computed, ref } from 'vue';
+import { Card, getCardImage } from "../../model.ts";
 
     interface Props {
         myId?: string,

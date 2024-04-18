@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: siteserver
+  name: siteserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: siteserver
+  template:
+    metadata:
+      labels:
+        app: siteserver
+    spec:
+      containers:
+      - image: poker-siteserver
+        name: siteserver
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8102
+          name: siteserver
+        env:
+        - name: MONGO_URL
+          value: mongodb://db

@@ -54,7 +54,7 @@ app.use(session({
   cookie: { secure: false },
 
   store: MongoStore.create({
-    mongoUrl: 'mongodb://127.0.0.1:27017',
+    mongoUrl: mongoUrl,
     ttl: 14 * 24 * 60 * 60 // 14 days
   })
 }))
@@ -236,7 +236,7 @@ client.connect().then(async () => {
       const params = {
         scope: 'openid profile email',
         nonce: generators.nonce(),
-        redirect_uri: `http://${HOST}:8100/api/login-callback`,
+        redirect_uri: `http://${HOST}:31000/api/login-callback`,
         state: generators.state(),
   
         // this forces a fresh login screen every time

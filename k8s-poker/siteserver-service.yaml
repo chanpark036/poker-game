@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: siteserver
+  name: siteserver
+spec:
+  type: NodePort
+  ports:
+  - name: "siteserver-service"
+    port: 5002
+    targetPort: 8102
+    nodePort: 31002
+  selector:
+    app: siteserver

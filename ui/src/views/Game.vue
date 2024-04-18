@@ -56,7 +56,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref } from 'vue'
 import { io } from "socket.io-client"
-import { Card, CardId, GameState, PlayerId } from "../../../server/game/model"
+import { Card, CardId, GameState, PlayerId } from "../../model.ts"  
 import CardRun from "../components/CardRun.vue"
 import PlayerHand from "../components/PlayerHand.vue"
 import { useRouter } from "vue-router";
