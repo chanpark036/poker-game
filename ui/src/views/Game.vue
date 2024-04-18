@@ -1,4 +1,6 @@
 <template>
+  <div>
+  <div v-if="!roomDeleted">
   <button @click="newGame">New game</button>
   <p>Room id: {{ roomId }}</p>
   <p>My id: {{ playerId }}</p>
@@ -31,8 +33,9 @@
         @action = "doAction"
       />
     </div>
-    
-    
+  </div>
+  <div v-else> uh oh room deleted</div>
+</div>
 </template>
 
 <style scoped>
@@ -56,7 +59,10 @@ import { io } from "socket.io-client"
 import { Card, CardId, GameState, PlayerId } from "../../model.ts"  
 import CardRun from "../components/CardRun.vue"
 import PlayerHand from "../components/PlayerHand.vue"
+import { useRouter } from "vue-router";
 
+
+const router = useRouter()
 // props
 interface Props {
   roomId? : string
@@ -110,6 +116,7 @@ const playersStillIn: Ref<PlayerId[]> = ref([])
 const communityCards: Ref<Card[]> = ref([])
 const lastPlayerTurnIndex = ref()
 const playerHandStatuses: Ref<Record<PlayerId, string>> = ref({})
+const roomDeleted = ref(false)
 
 const winners: Ref<PlayerId[]> = ref([])
 
@@ -132,6 +139,13 @@ const bigBlindPlayerId: Ref<PlayerId> = computed(() => {
 
 socket.on("winners", (winnersList) => {
   winners.value = winnersList
+})
+
+socket.on("room-deleted", (socketRoomId)=>{
+  if(socketRoomId == props.roomId){
+      alert('Room Deleted Bye Bye')
+      router.push(`/`)
+  }
 })
 
 socket.on("new-game-state", (newGameState: GameState, cards, roomId) => {

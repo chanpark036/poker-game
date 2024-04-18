@@ -52,7 +52,7 @@
 </style>
 
 <script setup lang="ts">
-    import { Card, getCardImage } from "../../model.ts"  
+    import { Card, getCardImage } from "../../model"  
     import { defineProps } from 'vue'
 
     const { communityCards } = defineProps<{ communityCards?: Card[] }>()
