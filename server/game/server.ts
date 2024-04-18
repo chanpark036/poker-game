@@ -1,12 +1,8 @@
 import http from "http"
 import { Server } from "socket.io"
 import { Card, GameState, PlayerId, RoomId, createEmptyGame, CardId, getCardAmt, determineHands, determineWinner, dealCards } from "./model"
-<<<<<<< HEAD
-import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState, getGameState} from "./mongo"
-=======
 import { setupMongo, getCards, enterNewGameState, tryToUpdateGameState, gameStateExists, deleteGameState} from "./mongo"
 
->>>>>>> adcfec36e68a99f3dc7b789eba52df5b63ec1be4
 async function main() {
 
 
