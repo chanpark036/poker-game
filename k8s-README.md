@@ -44,12 +44,3 @@ In one terminal:
 ```bash
 kubectl port-forward service/db 27017:27017
 ```
-
-In another terminal:
-
-```bash
-cd server
-npm run setup
-```
-
-
