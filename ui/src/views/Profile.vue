@@ -34,8 +34,8 @@
                         <div class="mt-3">Selected file: {{ file ? file.name : '' }}</div>
 
                         <!-- <b-button type="submit" variant="primary">Submit</b-button> -->
-                        <b-button @click="save">submit</b-button>
-                        <b-button @click="saveImage" variant="primary">save image</b-button>
+                        <b-button @click="save" variant="success">SUBMIT</b-button>
+                        <!-- <b-button @click="saveImage" variant="primary">save image</b-button> -->
                         <!-- <b-button @click="getImage" variant="primary">get image</b-button> -->
                         
                     </b-form>

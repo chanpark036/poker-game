@@ -1,18 +1,22 @@
 <template>
     <div>
-        <div v-if="!roomDeleted">
-            This is Room {{ roomId }}
-            I am Player {{ playerId }}
-            <button @click="startGame"> Start Game </button>
-
-            <div>
-                Waiting Players
-                <ul v-if="waitingPlayers">
-                    <li v-for="player in waitingPlayers">{{ player }}</li>
-                </ul>
+        <b-container class="mt-3">
+            <b-jumbotron v-if="!roomDeleted">
+                <template #header>Room {{ roomId }}</template>
+                <template #lead> I am Player {{ playerId }} </template>
+                <b-card bg-variant="light" text-variant="black" title="Players Waiting in Room">
+                    <b-list-group v-for="(player, pid) in waitingPlayers" :key="pid">
+                        <b-list-group-item class="d-flex justify-content-start align-items-center" variant="light">
+                            Player {{ player }}
+                        </b-list-group-item>
+                    </b-list-group>
+                </b-card>
+                <b-button @click="startGame" class="mt-3" style="float: right" variant="success"> Start Game </b-button>
+            </b-jumbotron>
+            <div v-else>
+                <b-jumbotron title="Sorry Your Room has been Deleted" bg-variant="info" text-variant="white"></b-jumbotron>
             </div>
-        </div>
-        <div v-else> sorry ur room has been deleted</div>
+        </b-container>
     </div>
 </template>
 
