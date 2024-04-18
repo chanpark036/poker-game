@@ -10,6 +10,7 @@ import Game from './views/Game.vue'
 import Home from './views/Home.vue'
 import Waiting from './views/Waiting.vue'
 import Profile from './views/Profile.vue'
+import Admin from './views/Admin.vue'
 
 const routes = [
 	{
@@ -38,6 +39,11 @@ const routes = [
 	{
 		path: "/profile",
 		component: Profile
+	},
+
+	{
+		path: "/admin",
+		component: Admin
 	}
 	
 ]

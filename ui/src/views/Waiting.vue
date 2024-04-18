@@ -1,14 +1,23 @@
 <template>
-This is Room {{ roomId }}
-I am Player {{ playerId }}
-<button @click="startGame"> Start Game </button>
-
-<div>
-    Waiting Players
-    <ul>
-        <li v-for="player in waitingPlayers">{{ player }}</li>
-    </ul>
-</div>
+    <div>
+        <b-container class="mt-3">
+            <b-jumbotron v-if="!roomDeleted">
+                <template #header>Room {{ roomId }}</template>
+                <template #lead> I am Player {{ playerId }} </template>
+                <b-card bg-variant="light" text-variant="black" title="Players Waiting in Room">
+                    <b-list-group v-for="(player, pid) in waitingPlayers" :key="pid">
+                        <b-list-group-item class="d-flex justify-content-start align-items-center" variant="light">
+                            Player {{ player }}
+                        </b-list-group-item>
+                    </b-list-group>
+                </b-card>
+                <b-button @click="startGame" class="mt-3" style="float: right" variant="success"> Start Game </b-button>
+            </b-jumbotron>
+            <div v-else>
+                <b-jumbotron title="Sorry Your Room has been Deleted" bg-variant="info" text-variant="white"></b-jumbotron>
+            </div>
+        </b-container>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -16,10 +25,11 @@ import { io } from "socket.io-client"
 import { PlayerId, RoomId } from "../../model.ts"  ;
 import { Ref, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+
 const socket = io()
 const router = useRouter()
 
-
+const roomDeleted = ref(false)
 let waitingPlayers: Ref<PlayerId[]> = ref([])
 
 socket.on("player-joined", (roomId: RoomId, waitingPlayers1: PlayerId[]) => {
@@ -42,8 +52,16 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 socket.on("game-started", (roomId) => {
-    if (roomId == props.roomId){
+    if (roomId == props.roomId) {
         router.push(`/game/${props.roomId}/${props.playerId}`)
+    }
+})
+
+socket.on("room-deleted", (socketRoomId: RoomId) => {
+    console.log(socketRoomId,props.roomId)
+    if (socketRoomId === props.roomId) {
+        alert('Room Deleted Bye Bye');
+        router.push(`/`)
     }
 })
 

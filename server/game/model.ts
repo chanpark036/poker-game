@@ -21,10 +21,7 @@ export interface Player {
   _id: PlayerId
   name: string
   age: number
-  earnings: number
-  profilePic: string | null
-  gamesPlayed: number
-  leaderboardRanking?: number
+  bio: string
 }
 
 export interface Room{
@@ -54,8 +51,10 @@ export interface GameState {
 export function createEmptyGame(playerIds: PlayerId[], roomId: RoomId, cardIds: CardId[]): GameState {
   const playerStacks = {}
   // console.log(playerIds)
-  for(const playerId of playerIds){
-    fillPlayerStack(playerId,playerStacks)
+  if(playerIds){
+    for(const playerId of playerIds){
+      fillPlayerStack(playerId,playerStacks)
+    }
   }
 
   const cardsByPlayer = dealCards(playerIds, cardIds)

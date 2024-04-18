@@ -14,28 +14,28 @@
                 <b-card-text v-if="playerInfo && !editMode">
                     <p>Name: {{ playerInfo.name }}</p>
                     <p>Age: {{ playerInfo.age }}</p>
-                    <p>Amount: {{ playerInfo.earnings }}</p>
+                    <p>Bio: {{ playerInfo.bio }}</p>
                 </b-card-text>
                 <b-card-text v-else>
                     <b-form>
-                        <b-form-group id="input-group-1" label="Your Name:" label-for="input-1" description="First and Last">
-                            <b-form-input id="input-1" v-model="form.name" placeholder="Enter name" required></b-form-input>
+                        <b-form-group id="input-group-1" label="Your Name:" label-for="input-1">
+                            <b-form-input id="input-1" v-model="form.name" placeholder="What is your name?" required></b-form-input>
                         </b-form-group>
 
                         <b-form-group id="input-group-2" label="Your Age:" label-for="input-2">
-                            <b-form-input id="input-2" v-model="form.age" placeholder="Enter age" required></b-form-input>
+                            <b-form-input id="input-2" v-model="form.age" placeholder="What is your age" required></b-form-input>
                         </b-form-group>
 
-                        <b-form-group id="input-group-3" label="Amount:" label-for="input-3">
-                            <b-form-input id="input-3" v-model="form.earnings" placeholder="Amount in Account" required></b-form-input>
+                        <b-form-group id="input-group-3" label="Enter a bio:" label-for="input-3">
+                            <b-form-input id="input-3" v-model="form.bio" placeholder="Tell us about yourself" required></b-form-input>
                         </b-form-group>
 
                         <b-form-file v-model="file" class="mt-3" plain accept="image/png" name="file"></b-form-file>
                         <div class="mt-3">Selected file: {{ file ? file.name : '' }}</div>
 
                         <!-- <b-button type="submit" variant="primary">Submit</b-button> -->
-                        <b-button @click="save">submit</b-button>
-                        <b-button @click="saveImage" variant="primary">save image</b-button>
+                        <b-button @click="save" variant="success">SUBMIT</b-button>
+                        <!-- <b-button @click="saveImage" variant="primary">save image</b-button> -->
                         <!-- <b-button @click="getImage" variant="primary">get image</b-button> -->
                         
                     </b-form>
@@ -48,8 +48,8 @@
 
 <script setup lang="ts">
 import { ref, inject, Ref, onMounted} from 'vue'
-import { Player } from "../../model.ts"  
-import {PlayerProfileInfo} from '../../data.ts'
+import { Player } from "../../model"  
+import {PlayerProfileInfo} from '../../data'
 
 const user: Ref<any> = inject("user")!
 const playerInfo: Ref<Player | null> = ref(null)
@@ -57,9 +57,7 @@ const playerInfo: Ref<Player | null> = ref(null)
 const form: Ref<PlayerProfileInfo> = ref({
     name: '',
     age: 0,
-    earnings: 0,
-    profilePic: null,
-    gamesPlayed: 0
+    bio: ''
 })
 const editMode = ref(false)
 const file: Ref<File | null> = ref(null)
@@ -81,9 +79,8 @@ async function refresh() {
                 playerInfo.value = await profileResponse.json();
                 form.value.name = playerInfo.value?.name || ''
                 form.value.age = playerInfo.value?.age || 0
-                form.value.earnings = playerInfo.value?.earnings || 0
-                form.value.profilePic = playerInfo.value?.profilePic || ''
-                form.value.gamesPlayed = playerInfo.value?.gamesPlayed || 0
+                form.value.bio = playerInfo.value?.bio || ''
+
                 console.log(playerInfo.value)
                 await getImage()
             }
@@ -115,7 +112,7 @@ async function saveImage() {
     if(user.value && file.value != null)
     {
         if(file.value.size > 3000000){
-            throw new Error('File too large try again');
+            alert('File too large try again');
         }
         else{
             const newFile = new File([file.value], user.value.preferred_username+'.png', {type: file.value.type});
