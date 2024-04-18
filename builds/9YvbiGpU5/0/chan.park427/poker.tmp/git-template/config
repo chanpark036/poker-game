@@ -1,0 +1,8 @@
+[init]
+	defaultBranch = none
+[fetch]
+	recurseSubmodules = false
+[transfer]
+	bundleURI = true
+[http "https://coursework.cs.duke.edu"]
+	sslCAInfo = /home/cvi/poker/builds/9YvbiGpU5/0/chan.park427/poker.tmp/CI_SERVER_TLS_CA_FILE
