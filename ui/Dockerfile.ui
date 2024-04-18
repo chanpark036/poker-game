@@ -6,6 +6,7 @@ RUN npm i
 COPY *.ts ./
 COPY index.html ./
 COPY src ./src
+COPY assets ./assets
 RUN ls -al && npm run build
 
 # nginx
