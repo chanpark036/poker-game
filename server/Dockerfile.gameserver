@@ -7,7 +7,10 @@ COPY *.ts* ./
 RUN mkdir /home/node/app/game
 COPY game/*.ts* game/
 
+
+
 RUN npm i
+# RUN npm run setup
 RUN ls -al && npm run game-build
 
 # node
