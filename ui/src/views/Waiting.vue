@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { io } from "socket.io-client"
-import { PlayerId, RoomId } from "../../model.ts"  ;
+import { PlayerId, RoomId } from "../../model"
 import { Ref, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
