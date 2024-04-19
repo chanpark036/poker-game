@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-container class="mt-3 d-flex justify-content-start align-items-center">
+        <b-container class="mt-3">
             <div v-if="rooms.length > 0">
                 <b-card bg-variant="info" text-variant="white" title="Active Rooms with More than One Person">
                     <b-list-group v-for="(room, rid) in rooms" :key="rid">
