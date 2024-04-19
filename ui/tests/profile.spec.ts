@@ -10,7 +10,7 @@ test('test', async ({ page }) => {
   await page.getByPlaceholder('Tell us about yourself').click();
   await page.getByPlaceholder('Tell us about yourself').fill('hi!');
   await page.locator('[id="__BVID__28"]').click();
-  await page.locator('[id="__BVID__28"]').setInputFiles('turtle.png');
+  await page.locator('[id="__BVID__28"]').setInputFiles('profile.png');
   await page.getByRole('button', { name: 'SUBMIT' }).click();
   await expect(page.getByRole('img')).toBeVisible();
   await expect(page.locator('#app')).toContainText('Name: will');
