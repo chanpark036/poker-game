@@ -35,7 +35,6 @@ deploy-job:      # This job runs in the deploy stage.
     - echo "Port forwarding to Mongo..."
     - kubectl port-forward service/db 27017:27017 & 
     - echo "Successfully port forwarded to Mongo..."
-    - wait 60
 
 e2e-test-job:   # This job runs in the test stage.
   stage: test 
