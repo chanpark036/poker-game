@@ -40,6 +40,7 @@ deploy-job:      # This job runs in the deploy stage.
 
 e2e-test-job:   # This job runs in the test stage.
   stage: test 
+  image: mcr.microsoft.com/playwright:v1.43.0-jammy
   script:
     - echo "Running E2E tests..."
     - cd ui
