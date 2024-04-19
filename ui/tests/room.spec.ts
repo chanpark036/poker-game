@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+test.describe.configure({ mode: 'parallel' });
+
+
 test('multiple_rooms_test', async ({ page, context }) => {
     const page1 = await context.newPage()
     const page2 = await context.newPage()

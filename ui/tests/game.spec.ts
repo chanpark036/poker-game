@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+test.describe.configure({ mode: 'parallel' });
+
+
 test('game_phases_test', async ({ page, context }) => {
     const page1 = await context.newPage()
   await page.goto('https://www.google.com/');

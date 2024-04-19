@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+test.describe('Admin Tests', () => {
 
-test.describe.configure({ mode: 'serial' });
+  test.describe.configure({ mode: 'serial' });
 
 test('check no rooms with more than one person', async ({ page }) => {
     await page.goto('http://127.0.0.1:31000/api/login?key=will&user=will&role=admin');
@@ -85,3 +86,5 @@ test('check deleting room kicks users out of game', async ({ page, context }) =>
     await page1.getByPlaceholder('Enter Room Code').click();
     await page2.getByPlaceholder('Enter Room Code').click();
 });
+
+})

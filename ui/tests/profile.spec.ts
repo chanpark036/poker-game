@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+test.describe.configure({ mode: 'parallel' });
+
+
 test('test', async ({ page }) => {
   await page.goto('http://127.0.0.1:31000/api/login?key=will&user=will&role=player');
   await page.getByRole('link', { name: 'Profile' }).click();
