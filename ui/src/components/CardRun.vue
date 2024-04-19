@@ -1,21 +1,36 @@
 <template>
   <div class="poker-table">
     <p class="pot-amount">Pot Amount: ${{ potAmount }}</p>
+    <div class="cards">
     <div class="card-container">
-      <div v-if="communityCards" v-for="(card, index) in communityCards.slice(0, 3)" :key="index" class="card-space">
-        <img v-if="card" :src="getCardImage(card.rank, card.suit)" alt="Card" class="card-image">
+        <div class="card-space" v-if="communityCards && communityCards[0]"> 
+          <img :src="getCardImage(communityCards[0].rank, communityCards[0].suit)" alt="Card" class="card-image">
+        </div>
+        <div v-else class="card-space"></div>
+
+        <div class="card-space" v-if="communityCards && communityCards[1]"> 
+          <img :src="getCardImage(communityCards[1].rank, communityCards[1].suit)" alt="Card" class="card-image">
+        </div>
+        <div v-else class="card-space"></div>
+
+        <div class="card-space" v-if="communityCards && communityCards[2]"> 
+          <img :src="getCardImage(communityCards[2].rank, communityCards[2].suit)" alt="Card" class="card-image">
+        </div>
+        <div v-else class="card-space"></div>
       </div>
-      <!-- Fill empty spaces for top row if less than 3 cards -->
-      <div v-if="communityCards && communityCards.length < 3" v-for="i in 3 - communityCards.length" :key="i + 3" class="card-space"></div>
-    </div>
+
     <div class="card-container">
-      <!-- Display bottom row (remaining cards) -->
-      <div v-if="communityCards" v-for="(card, index) in communityCards.slice(3, 5)" :key="index + 3" class="card-space">
-        <img v-if="card" :src="getCardImage(card.rank, card.suit)" alt="Card" class="card-image">
+      <div class="card-space" v-if="communityCards && communityCards[3]"> 
+        <img :src="getCardImage(communityCards[3].rank, communityCards[3].suit)" alt="Card" class="card-image">
       </div>
-      <!-- Fill empty spaces for bottom row if less than 2 cards -->
-      <div v-if="communityCards" v-for="i in 2 - communityCards.length" :key="i + 8" class="card-space"></div>
+      <div v-else class="card-space"></div>
+
+      <div class="card-space" v-if="communityCards && communityCards[4]"> 
+        <img :src="getCardImage(communityCards[4].rank, communityCards[4].suit)" alt="Card" class="card-image">
+      </div>
+      <div v-else class="card-space"></div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -57,6 +72,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
 }
 
 .card-image {

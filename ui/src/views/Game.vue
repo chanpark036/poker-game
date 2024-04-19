@@ -132,6 +132,11 @@ li:last-child {
   display: flex;
   justify-content: space-between;
 }
+@media (max-width: 800px) {
+  .cards {
+    flex-direction: column;
+  }
+}
 
 .table, .player-cards {
   flex: 1; /* Flex grow to utilize available space */

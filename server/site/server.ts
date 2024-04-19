@@ -18,7 +18,13 @@ const HOST = process.env.HOST || "127.0.0.1"
 const GROUP_ID = "poker-admin"
 // const GROUP_ID = ""
 // const DISABLE_SECURITY = !!process.env.DISABLE_SECURITY
-const DISABLE_SECURITY = false
+const DISABLE_SECURITY = process.env.DISABLE_SECURITY
+
+const passportStrategies = [
+  ...(DISABLE_SECURITY ? ["disable-security"] : []),
+  "oidc",
+]
+
 
 // set up Mongo
 const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017'
@@ -42,7 +48,7 @@ app.use(expressPinoLogger({ logger }))
 
 // set up CORS
 app.use(cors({
-  origin: "http://127.0.0.1:31000",
+  origin: "http://127.0.0.1:8100",
   credentials: true,
 }))
 
@@ -75,11 +81,11 @@ passport.deserializeUser((user: any, done) => {
   done(null, user)
 })
 
-app.get('/api/login', passport.authenticate('oidc', {
+app.get('/api/login', passport.authenticate(passportStrategies, {
   successReturnToOrRedirect: "/"
 }))
 
-app.get('/api/login-callback', passport.authenticate('oidc', {
+app.get('/api/login-callback', passport.authenticate(passportStrategies, {
   successReturnToOrRedirect: '/',
   failureRedirect: '/',
 }))
@@ -226,10 +232,17 @@ client.connect().then(async () => {
     profilePicChunks = db.collection("profilePics.chunks")
     profilePicFiles = db.collection("profilePics.files")
 
-    
-    if (DISABLE_SECURITY) {
-      passport.use("oidc", new CustomStrategy((req, done) => done(null, { preferred_username: req.query.user, roles: req.query.role })))
-    } else {
+
+    passport.use("disable-security", new CustomStrategy((req, done) => {
+        if (req.query.key !== DISABLE_SECURITY) {
+          console.log("you must supply ?key=" + DISABLE_SECURITY + " to log in via DISABLE_SECURITY")
+          done(null, false)
+        } else {
+          done(null, { name: req.query.user, preferred_username: req.query.user, roles: [].concat(req.query.role) })
+        }
+      }))
+
+    {
       const issuer = await Issuer.discover("https://coursework.cs.duke.edu/")
       const client = new issuer.Client(gitlab)
   
