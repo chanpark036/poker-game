@@ -67,7 +67,12 @@ socket.on("room-deleted", (socketRoomId: RoomId) => {
 
 function startGame() {
     console.log("game started")
+    if (waitingPlayers.value.length > 1) {
     socket.emit('start-game', props.roomId)
+    }
+    else {
+        alert("YOU NEED MORE THAN 1 PERSON TO PLAY POEKER")
+    }
 
     // console.log("roomId " + props.roomId + "player " + props.playerId)
 }
