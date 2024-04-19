@@ -33,8 +33,8 @@ deploy-job:      # This job runs in the deploy stage.
     - kubectl create -f k8s-poker/
     - echo "Application successfully deployed."
     - echo "Port forwarding to Mongo..."
-    - kubectl port-forward service/db 27017:27017 & 
-    - echo "Successfully port forwarded to Mongo..."
+    # - kubectl port-forward service/db 27017:27017 & 
+    # - echo "Successfully port forwarded to Mongo..."
 
 e2e-test-job:   # This job runs in the test stage.
   stage: test 
