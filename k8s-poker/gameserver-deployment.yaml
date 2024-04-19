@@ -26,3 +26,5 @@ spec:
           value: mongodb://db
         - name: SERVER_PORT
           value: "8101"
+        - name: DISABLE_SECURITY
+          value: will
