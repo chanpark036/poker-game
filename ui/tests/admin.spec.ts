@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+
+test.describe.configure({ mode: 'serial' });
+
 test('check no rooms with more than one person', async ({ page }) => {
     await page.goto('http://127.0.0.1:31000/api/login?key=will&user=will&role=admin');
     await expect(page.getByRole('link', { name: 'Admin' })).toBeVisible();
