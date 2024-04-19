@@ -43,5 +43,10 @@ e2e-test-job:   # This job runs in the test stage.
   script:
     - echo "Running E2E tests..."
     - cd ui
+    - npm ci
     - npx playwright test
     - echo "Finished running E2E tests..."
+
+
+    
+

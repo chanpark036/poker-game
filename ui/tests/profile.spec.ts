@@ -1,9 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe.configure({ mode: 'parallel' });
-
-
-test('test', async ({ page }) => {
+test('edit profile test', async ({ page }) => {
   await page.goto('http://127.0.0.1:31000/api/login?key=will&user=will&role=player');
   await page.getByRole('link', { name: 'Profile' }).click();
   await page.getByPlaceholder('What is your name?').click();
@@ -19,6 +16,10 @@ test('test', async ({ page }) => {
   await expect(page.locator('#app')).toContainText('Name: will');
   await expect(page.locator('#app')).toContainText('Age: 20');
   await expect(page.locator('#app')).toContainText('Bio: hi!');
+});
+
+test('click on different tabs test', async ({ page }) => {
+  await page.goto('http://127.0.0.1:31000/api/login?key=will&user=will&role=player');
   await page.getByRole('link', { name: 'Home' }).click();
   await page.getByRole('link', { name: 'Profile' }).click();
   await page.getByRole('link', { name: 'Logout' }).click();
