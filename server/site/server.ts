@@ -249,7 +249,9 @@ client.connect().then(async () => {
       const params = {
         scope: 'openid profile email',
         nonce: generators.nonce(),
-        redirect_uri: `http://${HOST}:8100/api/login-callback`,
+        redirect_uri: `http://${HOST}:31000/api/login-callback`,
+        // redirect_uri: `http://localhost:8100/api/login-callback`,
+
         state: generators.state(),
   
         // this forces a fresh login screen every time
