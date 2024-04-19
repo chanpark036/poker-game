@@ -11,7 +11,7 @@
                         </b-list-group-item>
                     </b-list-group>
                 </b-card>
-                <b-button @click="startGame" class="mt-3" style="float: right" variant="success"> Start Game </b-button>
+                <b-button @click="startGame" :disabled="show" class="mt-3" style="float: right" variant="success"> Start Game </b-button>
             </b-jumbotron>
             <div v-else>
                 <b-jumbotron title="Sorry Your Room has been Deleted" bg-variant="info" text-variant="white"></b-jumbotron>
@@ -30,7 +30,8 @@ const socket = io()
 const router = useRouter()
 
 const roomDeleted = ref(false)
-let waitingPlayers: Ref<PlayerId[]> = ref([])
+const waitingPlayers: Ref<PlayerId[]> = ref([])
+const show = ref(false)
 
 socket.on("player-joined", (roomId: RoomId, waitingPlayers1: PlayerId[]) => {
     if (roomId == props.roomId) {
@@ -53,7 +54,9 @@ const props = withDefaults(defineProps<Props>(), {
 
 socket.on("game-started", (roomId) => {
     if (roomId == props.roomId) {
+        show.value = true
         router.push(`/game/${props.roomId}/${props.playerId}`)
+        show.value = false
     }
 })
 
