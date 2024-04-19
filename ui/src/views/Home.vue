@@ -3,6 +3,8 @@
     <b-container class="mt-3">
       <b-jumbotron v-if="user?.name" class="d-flex justify-content-start align-items-center">
         <b-form-input v-model="roomCode" placeholder="Enter Room Code" type="text"></b-form-input>
+        <!-- <b-form-input v-model="playerId" placeholder="Enter Player Code" type="text"></b-form-input> -->
+
         <!-- <input type="string" v-model="roomCode" placeholder="Enter Room Code"> -->
         <b-button @click="joinRoom" variant="success">Join</b-button>
       </b-jumbotron>

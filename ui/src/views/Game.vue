@@ -1,57 +1,149 @@
 <template>
-  <div>
-  <div v-if="!roomDeleted">
-  <button @click="newGame">New game</button>
-  <p>Room id: {{ roomId }}</p>
-  <p>My id: {{ playerId }}</p>
-
-  <div> 
-    
-    <p>Current Phase: {{ gamePhase }}</p>
-    <p>Small Blind: {{ smallBlindPlayerId }}</p>
-    <p>Pot: {{ potAmount }}</p>
-    <p>My Hand : {{ playerHandStatuses[playerId] }}</p>
-    <p>Last Player Index: {{ lastPlayerTurnIndex }}</p>
-    <ul>
-      <li v-for="player in playersStillIn">{{ player }}</li>
-    </ul>
-  </div>
-
-    <div class="table">
-      <CardRun 
-        :communityCards="communityCards"
-      />
+  <div v-if="!roomDeleted" class="game-container">
+    <header class="game-header">
+      <button class="btn new-game" @click="newGame">New Game</button>
+      <div class="game-info">
+        <p class="info">Room ID: <span>{{ roomId }}</span></p>
+        <p class="info">My ID: <span>{{ playerId }}</span></p>
+        <p class="info">Current Phase: <span>{{ gamePhase }}</span></p>
+      </div>
+    </header>
+    <div class="game-stuff">
+      <section class="player-list">
+        <h3>Last Winner:</h3>
+        <p v-for="winner in winners" class="winner-info">{{ winner }}</p>
+      </section>
+      
     </div>
-    <div class="playerCards">
-      <PlayerHand 
-        :myId="playerId"
-        :currentTurnPlayerId="currentTurnPlayerId"
-        :myCards="myCards"
-        :myTotal = "playerStacks[playerId]"
-        :myBet = "betsThisPhase[playerId]"
-        :highestBet = "highestBet"
-        @action = "doAction"
-      />
+    <div class="cards">
+      <div class="table">
+        <CardRun :communityCards="communityCards" :potAmount="potAmount"/>
+      </div>
+      <div class="player-cards">
+        <PlayerHand 
+          :myId="playerId"
+          :currentTurnPlayerId="currentTurnPlayerId"
+          :myCards="myCards"
+          :myTotal="playerStacks[playerId]"
+          :myBet="betsThisPhase[playerId]"
+          :highestBet="highestBet"
+          :myHand="playerHandStatuses[playerId]"
+          @action="doAction"
+        />
+      </div>
+      <section class="player-list">
+        <h3>Players Still In:</h3>
+        <ul>
+          <li v-for="player in playersStillIn">{{ player }} - ${{ betsThisPhase[player] }}</li>
+        </ul>
+      </section>
     </div>
   </div>
-  <div v-else> uh oh room deleted</div>
-</div>
 </template>
 
 <style scoped>
-.table {
-  position: fixed;
-  top: 10px; /* Adjust top position as needed */
-  left: 50%; /* Adjust left position as needed */
-  transform: translateX(-50%); /* Center horizontally */
+.game-container {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  background-color: #ffffff; /* Brighter background */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15); /* Deeper shadow for a floating effect */
+  max-width: 1200px; /* Restrict maximum width for better layout */
+  margin: auto; /* Center the game container */
 }
-.playerCards{
-  position: fixed;
-  top: 55%; /* Adjust top position as needed */
-  left: 50%; /* Adjust left position as needed */
-  transform: translateX(-50%); /* Center horizontally */
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  background: linear-gradient(145deg, #4CAF50, #3C9F40);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn:hover {
+  background: linear-gradient(145deg, #369636, #4CAF50);
+}
+
+.game-info .info {
+  margin: 0;
+  color: #555; /* Slightly darker text for better readability */
+}
+
+.game-info span {
+  font-weight: bold;
+  color: #222; /* Even darker for emphasis */
+}
+
+.game-stuff {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px; /* Add bottom margin for separation */
+}
+
+.player-list {
+  background-color: #f9f9f9; /* Lighter background for sections */
+  padding: 15px;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  flex: 1; /* Flex grow to fill available space */
+  margin-right: 20px; /* Space between player lists */
+}
+
+.player-list:last-child {
+  margin-right: 0; /* Remove margin for the last element */
+}
+
+h3 {
+  margin-top: 0;
+  color: #4CAF50; /* Color to match buttons */
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0; /* Remove default margin */
+}
+
+li {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  transition: background-color 0.3s ease;
+}
+
+li:hover {
+  background-color: #f0f0f0; /* Hover effect for list items */
+}
+
+li:last-child {
+  border-bottom: none;
+}
+
+.cards {
+  display: flex;
+  justify-content: space-between;
+}
+@media (max-width: 800px) {
+  .cards {
+    flex-direction: column;
+  }
+}
+
+.table, .player-cards {
+  flex: 1; /* Flex grow to utilize available space */
 }
 </style>
+
+
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref } from 'vue'
@@ -266,6 +358,9 @@ function doAction(actionType: string, amount: number) {
 
   
   if (actionType == "call") {
+    if (amount > playerStacks.value[props.playerId]) {
+      amount = playerStacks.value[props.playerId]
+    }
     betsThisPhase.value[props.playerId] += amount
     playerStacks.value[props.playerId] -= amount
     potAmount.value += amount
