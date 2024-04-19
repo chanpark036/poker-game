@@ -15,8 +15,8 @@ import { PlayerProfileInfo, ProfilePicChunk, ProfilePicFile } from './data'
 import { upload, dontCache}from './middleware/upload'
 
 const HOST = process.env.HOST || "127.0.0.1"
-const GROUP_ID = ""
 // const GROUP_ID = ""
+const GROUP_ID = "poker-admin"
 // const DISABLE_SECURITY = !!process.env.DISABLE_SECURITY
 const DISABLE_SECURITY = process.env.DISABLE_SECURITY
 
