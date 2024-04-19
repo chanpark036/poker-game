@@ -65,7 +65,9 @@ io.on("connection", function(socket){
     socket.on("join-room", (roomId: RoomId, playerId: PlayerId)=>{
         socket.join(roomId);
         if (waitingPlayers[roomId]){
-            waitingPlayers[roomId].push(playerId)
+            if (!waitingPlayers[roomId].includes(playerId)) {
+                waitingPlayers[roomId].push(playerId)
+            }
         }
         else {
             waitingPlayers[roomId] = [playerId]
