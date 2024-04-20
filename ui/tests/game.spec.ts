@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
 
-test.describe.configure({ mode: 'parallel' });
+test.describe.configure({ mode: 'serial' });
 
 
 test('game_phases_test', async ({ page, context }) => {
     const page1 = await context.newPage()
   await page.goto('https://www.google.com/');
-  await page.goto('http://127.0.0.1:31000/api/login?key=will&user=player1&role=player');
-  await page1.goto('http://127.0.0.1:31000/api/login?key=will&user=player2&role=player');
+  await page.goto('http://127.0.0.1:31000/api/login?key=will&user=player11&role=player');
+  await page1.goto('http://127.0.0.1:31000/api/login?key=will&user=player21&role=player');
   await page.getByPlaceholder('Enter Room Code').click();
   await page.getByPlaceholder('Enter Room Code').fill('Test2');
   await page.getByRole('button', { name: 'Join' }).click();
@@ -33,8 +33,8 @@ test('call_raise_button_test', async ({ page, context }) => {
     const page1 = await context.newPage()
 
   await page.goto('https://www.google.com/');
-  await page.goto('http://127.0.0.1:31000/api/login?key=will&user=player1&role=player');
-  await page1.goto('http://127.0.0.1:31000/api/login?key=will&user=player2&role=player');
+  await page.goto('http://127.0.0.1:31000/api/login?key=will&user=player12&role=player');
+  await page1.goto('http://127.0.0.1:31000/api/login?key=will&user=player22&role=player');
 
   await page.getByPlaceholder('Enter Room Code').click();
   await page.getByPlaceholder('Enter Room Code').fill('Test0');
@@ -56,8 +56,8 @@ test('fold_button_test', async ({ page, context }) => {
     const page1 = await context.newPage()
 
   await page.goto('https://www.google.com/');
-  await page.goto('http://127.0.0.1:31000/api/login?key=will&user=player1&role=player');
-  await page1.goto('http://127.0.0.1:31000/api/login?key=will&user=player2&role=player');
+  await page.goto('http://127.0.0.1:31000/api/login?key=will&user=player13&role=player');
+  await page1.goto('http://127.0.0.1:31000/api/login?key=will&user=player23&role=player');
 
   await page.getByPlaceholder('Enter Room Code').click();
   await page.getByPlaceholder('Enter Room Code').fill('Test1');
@@ -76,7 +76,7 @@ test('fold_button_test', async ({ page, context }) => {
 
 test('check one player', async ({ page }) => {
   await page.goto('https://www.google.com/');
-  await page.goto('http://127.0.0.1:31000/api/login?key=will&user=player1&role=player');
+  await page.goto('http://127.0.0.1:31000/api/login?key=will&user=player14&role=player');
   await page.getByPlaceholder('Enter Room Code').click();
   await page.getByPlaceholder('Enter Room Code').fill('Test3');
   await page.getByRole('button', { name: 'Join' }).click();

@@ -45,4 +45,5 @@ function deleteRoom(roomId: string) {
 }
 
 onMounted(getRooms)
+
 </script>

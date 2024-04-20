@@ -25,9 +25,9 @@
 <script setup lang="ts">
 import { ref, Ref, inject } from 'vue'
 import { useRouter } from 'vue-router';
-// import { io } from "socket.io-client"
+import { io } from "socket.io-client"
 
-// const socket = io()
+const socket = io()
 
 // const playerName = ref("") // TODO: GET RID OF EVENTUALLY
 const roomCode = ref("")
@@ -41,6 +41,7 @@ function joinRoom() {
     const roomId = roomCode.value
     router.push(`/${roomId}/${playerId.value}`)
 
+    socket.emit("join-room", roomId, playerId.value)
 
 
     // router.push(`/${roomId}/${playerName.value}`) // USE CUSTOM PLAYER NAMES FOR TESTING. TODO: CHANGE BACK EVENTUALLY
