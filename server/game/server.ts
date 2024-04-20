@@ -63,14 +63,15 @@ io.on("connection", function(socket){
     })
 
     socket.on("join-room", (roomId: RoomId, playerId: PlayerId)=>{
-        socket.join(roomId);
         if (waitingPlayers[roomId]){
             if (!waitingPlayers[roomId].includes(playerId)) {
                 waitingPlayers[roomId].push(playerId)
+                socket.join(roomId);
             }
         }
         else {
             waitingPlayers[roomId] = [playerId]
+            socket.join(roomId);
         }
         // console.log("room " + roomId + " joined by player " + playerId)
         // console.log("socket id is " + socket.id)

@@ -81,7 +81,7 @@ function startGame() {
 }
 
 onMounted(() => {
-    socket.emit("join-room", props.roomId, props.playerId)
-    // socket.emit('refresh', props.roomId)
+    // socket.emit("join-room", props.roomId, props.playerId)
+    socket.emit('refresh', props.roomId)
 })
 </script>
